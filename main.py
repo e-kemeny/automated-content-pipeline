@@ -44,13 +44,13 @@ if duration_seconds is not None:
 else:
     print("No duration found.")
 
-def cut_clip(video_path, start_time, end_time):
+def cut_clip(video_path, start_time, end_time, clip_number):
     if end_time <= start_time:
         print("Error: end_time must be greater than start_time")
         return
     duration = end_time - start_time
 
-    output_path = Path("output/clip.mp4")
+    output_path = Path(f"output/clip_{clip_number}.mp4")
 
     command = ["ffmpeg",
                "-y",
@@ -62,6 +62,32 @@ def cut_clip(video_path, start_time, end_time):
                str(output_path)
     ]
 
-    subprocess.run(command)
+    result = subprocess.run(
+        command,
+        capture_output = True,
+        text = True
+    )
 
-cut_clip(video_path, 10, 20)
+    if result.returncode == 0:
+        print("Clip created: ", output_path)
+    else:
+        print("Error creating clip")
+
+
+highlights = [
+    {"start_time": 10,
+    "end_time": 20},
+    {"start_time": 45,
+    "end_time": 60},
+    {"start_time": 100,
+    "end_time": 115}
+]
+
+
+for index, highlight in enumerate(highlights, start = 1):
+    cut_clip(
+        video_path,
+        highlight["start_time"],
+        highlight["end_time"],
+        index
+    )
