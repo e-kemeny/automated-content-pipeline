@@ -7,7 +7,7 @@ video_path = Path("videos/my_recording.mp4")
 if video_path.exists():
     print("Video Found: ", video_path)
 else:
-    print("Error: video not found")
+    raise SystemExit("Error: video not found")
 
 
 def get_video_duration(video_path):
@@ -91,3 +91,28 @@ for index, highlight in enumerate(highlights, start = 1):
         highlight["end_time"],
         index
     )
+
+def extract_audio(video_path):
+    output_path = Path("output/audio.wav")
+    command = [
+        "ffmpeg",
+        "-y",
+        "-i", str(video_path),
+        "-vn",
+        "-ac", "1",
+        "-ar", "16000",
+        str(output_path)
+    ]
+
+    result = subprocess.run(
+        command,
+        capture_output = True,
+        text = True
+    )
+
+    if result.returncode == 0:
+        print("Audio extracted:", output_path)
+    else:
+        print("Error extracting audio")
+
+extract_audio(video_path)
