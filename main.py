@@ -1,6 +1,8 @@
 from pathlib import Path
+from array import array
 import subprocess
 import json
+import wave
 
 video_path = Path("videos/my_recording.mp4")
 
@@ -116,3 +118,21 @@ def extract_audio(video_path):
         print("Error extracting audio")
 
 extract_audio(video_path)
+
+def analyze_audio(audio_path):
+    with wave.open(str(audio_path), "rb") as audio:
+        channels = audio.getnchannels()
+        sample_rate = audio.getframerate()
+        num_frames = audio.getnframes()
+
+        audio_data = audio.readframes(num_frames)
+        samples = array("h", audio_data)
+
+        print(type(samples))
+        print(len(samples))
+        print(samples[:10])
+        print(type(audio_data))
+        print(len(audio_data))
+        print(f"Channels: {channels}, \nSample Rate: {sample_rate}, \nNumber of Frames: {num_frames}")
+
+analyze_audio(Path("output/audio.wav"))
