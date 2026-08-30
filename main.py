@@ -128,6 +128,10 @@ def analyze_audio(audio_path):
         audio_data = audio.readframes(num_frames)
         samples = array("h", audio_data)
 
+        first_second = samples[:sample_rate]
+        average_volume = sum(abs(sample) for sample in first_second) / len(first_second)
+
+        print("Average volume: ", average_volume)
         print(type(samples))
         print(len(samples))
         print(samples[:10])
