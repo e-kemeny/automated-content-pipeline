@@ -131,12 +131,14 @@ def analyze_audio(audio_path):
         first_second = samples[:sample_rate]
         average_volume = sum(abs(sample) for sample in first_second) / len(first_second)
 
-        print("Average volume: ", average_volume)
-        print(type(samples))
-        print(len(samples))
-        print(samples[:10])
-        print(type(audio_data))
-        print(len(audio_data))
-        print(f"Channels: {channels}, \nSample Rate: {sample_rate}, \nNumber of Frames: {num_frames}")
+        volumes = []
+        for start in range(0, len(samples), sample_rate):
+            end = start + sample_rate
+            chunk = samples[start:end]
+            second = start // sample_rate
+            average_volume = sum(abs(sample) for sample in chunk) / len(chunk)
+            volumes.append({"second": second, "volume": average_volume})
 
+        print(volumes[:3])
+        
 analyze_audio(Path("output/audio.wav"))
