@@ -128,17 +128,30 @@ def analyze_audio(audio_path):
         audio_data = audio.readframes(num_frames)
         samples = array("h", audio_data)
 
-        first_second = samples[:sample_rate]
-        average_volume = sum(abs(sample) for sample in first_second) / len(first_second)
-
         volumes = []
         for start in range(0, len(samples), sample_rate):
             end = start + sample_rate
             chunk = samples[start:end]
             second = start // sample_rate
             average_volume = sum(abs(sample) for sample in chunk) / len(chunk)
-            volumes.append({"second": second, "volume": average_volume})
+            volumes.append({
+                "second": second,
+                "volume": average_volume
+            })
 
-        print(volumes[:3])
-        
+        sorted_volumes = sorted(
+            volumes,
+            key = lambda item: item["volume"],
+            reverse = True
+        )
+
+        selected_seconds = []
+
+        for item in sorted_volumes:
+            second = item["second"]
+
+            if second >= selected_seconds[]
+
+        print(sorted_volumes[:5])
+    
 analyze_audio(Path("output/audio.wav"))
