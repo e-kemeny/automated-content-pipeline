@@ -150,8 +150,15 @@ def analyze_audio(audio_path):
         for item in sorted_volumes:
             second = item["second"]
 
-            if second >= selected_seconds[]
+            if all(abs(second - selected) >= 5 for selected in selected_seconds):
+                selected_seconds.append(second)
 
-        print(sorted_volumes[:5])
+                if len(selected_seconds) == 5:
+                    break
+
+                start_time = max(0, second - 10)
+                end_time = second + 5
+                
+        print("Selected Highlights: ", selected_seconds)
     
 analyze_audio(Path("output/audio.wav"))
