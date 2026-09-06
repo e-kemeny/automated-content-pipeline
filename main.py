@@ -75,25 +75,6 @@ def cut_clip(video_path, start_time, end_time, clip_number):
     else:
         print("Error creating clip")
 
-
-highlights = [
-    {"start_time": 10,
-    "end_time": 20},
-    {"start_time": 45,
-    "end_time": 60},
-    {"start_time": 100,
-    "end_time": 115}
-]
-
-
-for index, highlight in enumerate(highlights, start = 1):
-    cut_clip(
-        video_path,
-        highlight["start_time"],
-        highlight["end_time"],
-        index
-    )
-
 def extract_audio(video_path):
     output_path = Path("output/audio.wav")
     command = [
@@ -156,9 +137,20 @@ def analyze_audio(audio_path):
                 if len(selected_seconds) == 5:
                     break
 
-                start_time = max(0, second - 10)
-                end_time = second + 5
-                
         print("Selected Highlights: ", selected_seconds)
+
+        for index, second in enumerate(selected_seconds, start = 1):  
+            start_time = max(0, second - 10)
+            end_time = second + 5
+
+            cut_clip(
+                video_path,
+                start_time,
+                end_time,
+                index
+            )
+                    
+
     
+
 analyze_audio(Path("output/audio.wav"))
