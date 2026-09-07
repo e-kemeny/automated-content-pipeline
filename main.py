@@ -137,7 +137,9 @@ def analyze_audio(audio_path):
                 if len(selected_seconds) == 5:
                     break
 
+        selected_seconds = sorted(selected_seconds)
         print("Selected Highlights: ", selected_seconds)
+
 
         for index, second in enumerate(selected_seconds, start = 1):  
             start_time = max(0, second - 10)
