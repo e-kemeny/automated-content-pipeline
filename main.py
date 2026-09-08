@@ -121,10 +121,13 @@ def analyze_audio(audio_path):
             })
 
         spikes = []
-        for i in range(1, len(volumes)):
+        for i in range(5, len(volumes)):
             current_volume = volumes[i]["volume"]
-            previous_volume = volumes[i - 1]["volume"]
-            spike = current_volume - previous_volume
+            last_five_volumes = volumes[i - 5:i]
+
+            sum_last_five_volumes = sum(item["volume"] for item in last_five_volumes)
+            average_last_five_volumes = sum_last_five_volumes / len(last_five_volumes)
+            spike = current_volume - average_last_five_volumes
 
             second = volumes[i]["second"]
 
@@ -137,23 +140,17 @@ def analyze_audio(audio_path):
                 "score": score
             })
 
-        sorted_spikes = sorted(
+        sorted_scores = sorted(
             spikes,
             key = lambda item: item["score"],
             reverse = True
         )
 
-        print("Top combined scores:", sorted_spikes[:5])
-
-        sorted_volumes = sorted(
-            volumes,
-            key = lambda item: item["volume"],
-            reverse = True
-        )
+        print("Top combined scores:", sorted_scores[:5])
 
         selected_seconds = []
 
-        for item in sorted_spikes:
+        for item in sorted_scores:
             second = item["second"]
 
             if all(abs(second - selected) >= 5 for selected in selected_seconds):
