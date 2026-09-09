@@ -153,7 +153,7 @@ def analyze_audio(audio_path):
         for item in sorted_scores:
             second = item["second"]
 
-            if all(abs(second - selected) >= 5 for selected in selected_seconds):
+            if all(abs(second - selected) >= 15 for selected in selected_seconds):
                 selected_seconds.append(second)
 
                 if len(selected_seconds) == 5:
@@ -165,7 +165,7 @@ def analyze_audio(audio_path):
 
         for index, second in enumerate(selected_seconds, start = 1):  
             start_time = max(0, second - 10)
-            end_time = second + 5
+            end_time = min(second + 5, duration_seconds)
 
             cut_clip(
                 video_path,
