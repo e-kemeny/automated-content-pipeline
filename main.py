@@ -100,6 +100,41 @@ def extract_audio(video_path):
 
 extract_audio(video_path)
 
+def analyze_video_motion(video_path):
+    command = [
+        "ffmpeg",
+        "-y",
+        "-i", str(video_path),
+        "-vf", "select='gt(scene,0.3)',showinfo",
+        "-f", "null",
+        "-"
+    ]
+
+    result = subprocess.run(
+        command,
+        capture_output=True,
+        text=True
+    )
+
+    print("FFmpeg output length:", len(result.stderr))
+
+    position = result.stderr.find("pts_time")
+
+    print(position)
+    print(result.stderr[position:position + 100])
+
+    scene_changes = []
+    for line in result.stderr.splitlines():
+        if "pts_time" in line:
+            parts = line.split("pts_time:")
+            after_pts_time = parts[1]
+            timestamp_parts = after_pts_time.split()
+            timestamp = float(timestamp_parts[0])
+            scene_changes.append(timestamp)
+            print(timestamp)
+
+    
+
 def analyze_audio(audio_path):
     with wave.open(str(audio_path), "rb") as audio:
         channels = audio.getnchannels()
@@ -173,8 +208,7 @@ def analyze_audio(audio_path):
                 end_time,
                 index
             )
-                    
-
-    
+                  
 
 analyze_audio(Path("output/audio.wav"))
+analyze_video_motion(video_path)
