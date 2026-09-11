@@ -105,7 +105,7 @@ def analyze_video_motion(video_path):
         "ffmpeg",
         "-y",
         "-i", str(video_path),
-        "-vf", "select='gt(scene,0.3)',showinfo",
+        "-vf", "scdet=t=10",
         "-f", "null",
         "-"
     ]
@@ -116,24 +116,37 @@ def analyze_video_motion(video_path):
         text=True
     )
 
-    print("FFmpeg output length:", len(result.stderr))
-
-    position = result.stderr.find("pts_time")
-
-    print(position)
-    print(result.stderr[position:position + 100])
+    # scene_changes = []
+    # for line in result.stderr.splitlines():
+    #     if "pts_time" in line:
+    #         parts = line.split("pts_time:")
+    #         after_pts_time = parts[1]
+    #         timestamp_parts = after_pts_time.split()
+    #         timestamp = float(timestamp_parts[0])
+    #         scene_changes.append(timestamp)
+    #         print(timestamp)
 
     scene_changes = []
     for line in result.stderr.splitlines():
-        if "pts_time" in line:
-            parts = line.split("pts_time:")
-            after_pts_time = parts[1]
-            timestamp_parts = after_pts_time.split()
-            timestamp = float(timestamp_parts[0])
-            scene_changes.append(timestamp)
-            print(timestamp)
+        if "lavfi.scd.score" in line:
+            parts = line.split("lavfi.scd.score:")
+            score_parts = parts[1].split(",")
+            score = float(score_parts[0])
+            time_parts = score_parts[1].split("lavfi.scd.time:")
+            timestamp = float(time_parts[1])
+            scene_changes.append({
+                "time": timestamp,
+                "score": score
+            })
 
-    
+    sorted_scene_changes = sorted(
+        scene_changes,
+        key=lambda item: item["score"],
+        reverse=True
+    )
+
+    print(sorted_scene_changes[:5])
+    return sorted_scene_changes
 
 def analyze_audio(audio_path):
     with wave.open(str(audio_path), "rb") as audio:
@@ -181,34 +194,37 @@ def analyze_audio(audio_path):
             reverse = True
         )
 
-        print("Top combined scores:", sorted_scores[:5])
+        print("Top combined scores: ", sorted_scores[:5])
+        return sorted_scores
+        
+        # selected_seconds = []
 
-        selected_seconds = []
+        # for item in sorted_scores:
+        #     second = item["second"]
 
-        for item in sorted_scores:
-            second = item["second"]
+        #     if all(abs(second - selected) >= 15 for selected in selected_seconds):
+        #         selected_seconds.append(second)
 
-            if all(abs(second - selected) >= 15 for selected in selected_seconds):
-                selected_seconds.append(second)
+        #         if len(selected_seconds) == 5:
+        #             break
 
-                if len(selected_seconds) == 5:
-                    break
-
-        selected_seconds = sorted(selected_seconds)
-        print("Selected Highlights: ", selected_seconds)
+        # selected_seconds = sorted(selected_seconds)
+        # print("Selected Highlights: ", selected_seconds)
 
 
-        for index, second in enumerate(selected_seconds, start = 1):  
-            start_time = max(0, second - 10)
-            end_time = min(second + 5, duration_seconds)
+        # for index, second in enumerate(selected_seconds, start = 1):  
+        #     start_time = max(0, second - 10)
+        #     end_time = min(second + 5, duration_seconds)
 
-            cut_clip(
-                video_path,
-                start_time,
-                end_time,
-                index
-            )
+        #     cut_clip(
+        #         video_path,
+        #         start_time,
+        #         end_time,
+        #         index
+        #     )
                   
 
-analyze_audio(Path("output/audio.wav"))
-analyze_video_motion(video_path)
+audio_scores = analyze_audio(Path("output/audio.wav"))
+scene_scores = analyze_video_motion(video_path)
+print(audio_scores[:2])
+print(scene_scores[:2])
