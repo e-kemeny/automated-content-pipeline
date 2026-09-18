@@ -33,7 +33,7 @@ def get_video_duration(video_path):
     if "format" in metadata and "duration" in metadata["format"]:
         duration_seconds = float(metadata["format"]["duration"])
         return duration_seconds
-    
+
     return None
 
 duration_seconds = get_video_duration(video_path)
@@ -196,35 +196,64 @@ def analyze_audio(audio_path):
 
         print("Top combined scores: ", sorted_scores[:5])
         return sorted_scores
-        
-        # selected_seconds = []
-
-        # for item in sorted_scores:
-        #     second = item["second"]
-
-        #     if all(abs(second - selected) >= 15 for selected in selected_seconds):
-        #         selected_seconds.append(second)
-
-        #         if len(selected_seconds) == 5:
-        #             break
-
-        # selected_seconds = sorted(selected_seconds)
-        # print("Selected Highlights: ", selected_seconds)
-
-
-        # for index, second in enumerate(selected_seconds, start = 1):  
-        #     start_time = max(0, second - 10)
-        #     end_time = min(second + 5, duration_seconds)
-
-        #     cut_clip(
-        #         video_path,
-        #         start_time,
-        #         end_time,
-        #         index
-        #     )
-                  
 
 audio_scores = analyze_audio(Path("output/audio.wav"))
 scene_scores = analyze_video_motion(video_path)
 print(audio_scores[:2])
 print(scene_scores[:2])
+
+max_audio_score = audio_scores[0]["score"]
+max_scene_score = scene_scores[0]["score"]
+
+for item in audio_scores:
+    item["normalized_score"] = item["score"] / max_audio_score
+
+for item in scene_scores:
+    item["normalized_score"] = item["score"] / max_scene_score
+
+for audio_item in audio_scores:
+    audio_second = audio_item["second"]
+    best_scene_score = 0
+
+    for scene_item in scene_scores:
+        scene_second = scene_item["time"]
+
+        if abs(audio_second - scene_second) <= 5:
+            best_scene_score = max(
+                best_scene_score,
+                scene_item["normalized_score"]
+            )
+
+    audio_item["scene_score"] = best_scene_score
+
+for audio_item in audio_scores:
+    audio_item["highlight_score"] = (
+        0.7 * audio_item["normalized_score"]
+        + 0.3 * audio_item["scene_score"]
+    )
+
+ranked = sorted(
+    audio_scores,
+    key=lambda item: item["highlight_score"],
+    reverse=True
+)
+
+selected_highlights = []
+for item in ranked:
+    if all(
+        abs(item["second"] - selected["second"]) >= 15
+        for selected in selected_highlights
+    ):
+        selected_highlights.append(item)
+        if len(selected_highlights) == 5:
+            break
+
+selected_highlights.sort(key=lambda item: item["second"])
+
+print("Selected highlights:")
+for index, item in enumerate(selected_highlights, start=1):
+    second = item["second"]
+    print(f"  {index}. {second}s | highlight score: {item['highlight_score']:.6f}")
+    start_time = max(0, second - 10)
+    end_time = min(duration_seconds, second + 5)
+    cut_clip(video_path, start_time, end_time, index)
