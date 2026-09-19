@@ -4,6 +4,8 @@ import subprocess
 import json
 import wave
 
+from evaluation import GROUND_TRUTH, select_highlights, evaluate_predictions, print_evaluation
+
 video_path = Path("videos/my_recording.mp4")
 
 if video_path.exists():
@@ -232,23 +234,22 @@ for audio_item in audio_scores:
         + 0.3 * audio_item["scene_score"]
     )
 
-ranked = sorted(
-    audio_scores,
-    key=lambda item: item["highlight_score"],
-    reverse=True
-)
+audio_highlights = select_highlights(audio_scores, "score")
+selected_highlights = select_highlights(audio_scores, "highlight_score")
 
-selected_highlights = []
-for item in ranked:
-    if all(
-        abs(item["second"] - selected["second"]) >= 15
-        for selected in selected_highlights
-    ):
-        selected_highlights.append(item)
-        if len(selected_highlights) == 5:
-            break
+for name, highlights in [("AUDIO-ONLY", audio_highlights), ("MULTIMODAL", selected_highlights)]:
+    predictions = [item["second"] for item in highlights]
+    print_evaluation(name, evaluate_predictions(predictions, GROUND_TRUTH))
 
-selected_highlights.sort(key=lambda item: item["second"])
+# Ranking diagnostics only; clip generation still uses the top five above.
+for name, score_key in [("AUDIO-ONLY", "score"), ("MULTIMODAL", "highlight_score")]:
+    top_ten = select_highlights(audio_scores, score_key, limit=10)
+    predictions = [item["second"] for item in top_ten]
+    print_evaluation(
+        f"{name} TOP 10",
+        evaluate_predictions(predictions, GROUND_TRUTH),
+        show_diagnostics=True,
+    )
 
 print("Selected highlights:")
 for index, item in enumerate(selected_highlights, start=1):
