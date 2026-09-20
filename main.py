@@ -5,6 +5,7 @@ import json
 import wave
 
 from evaluation import GROUND_TRUTH, select_highlights, evaluate_predictions, print_evaluation
+from motion import analyze_motion, add_motion_scores
 
 video_path = Path("videos/my_recording.mp4")
 
@@ -237,16 +238,29 @@ for audio_item in audio_scores:
 audio_highlights = select_highlights(audio_scores, "score")
 selected_highlights = select_highlights(audio_scores, "highlight_score")
 
-for name, highlights in [("AUDIO-ONLY", audio_highlights), ("MULTIMODAL", selected_highlights)]:
+for name, highlights in [("AUDIO-ONLY", audio_highlights), ("AUDIO + SCENE", selected_highlights)]:
     predictions = [item["second"] for item in highlights]
     print_evaluation(name, evaluate_predictions(predictions, GROUND_TRUTH))
 
 # Ranking diagnostics only; clip generation still uses the top five above.
-for name, score_key in [("AUDIO-ONLY", "score"), ("MULTIMODAL", "highlight_score")]:
+for name, score_key in [("AUDIO-ONLY", "score"), ("AUDIO + SCENE", "highlight_score")]:
     top_ten = select_highlights(audio_scores, score_key, limit=10)
     predictions = [item["second"] for item in top_ten]
     print_evaluation(
         f"{name} TOP 10",
+        evaluate_predictions(predictions, GROUND_TRUTH),
+        show_diagnostics=True,
+    )
+
+# Motion is evaluation-only; production clips still use Audio + Scene.
+print("\nAnalyzing motion/activity: 5 fps, 160x90 grayscale")
+motion_scores = analyze_motion(video_path)
+add_motion_scores(audio_scores, motion_scores)
+for limit in (5, 10):
+    motion_highlights = select_highlights(audio_scores, "motion_highlight_score", limit=limit)
+    predictions = [item["second"] for item in motion_highlights]
+    print_evaluation(
+        f"AUDIO + MOTION TOP {limit}",
         evaluate_predictions(predictions, GROUND_TRUTH),
         show_diagnostics=True,
     )
