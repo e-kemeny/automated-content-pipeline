@@ -1,0 +1,86 @@
+[
+  {
+    "start": 0.0,
+    "end": 18.0,
+    "type": "intro",
+    "description": "video intro"
+  },
+  {
+    "start": 19.0,
+    "end": 27.0,
+    "type": "transition",
+    "description": "Game 1 transition and initial reaction to pack"
+  },
+  {
+    "start": 27.0,
+    "end": 33.0,
+    "type": "combat",
+    "description": "Bridging and get fireballed off the map"
+  },
+  {
+    "start": 33.0,
+    "end": 47.0,
+    "type": "combat",
+    "description": "Kill player, break bed, then get final kill"
+  },
+  {
+    "start": 47.0,
+    "end": 53.0,
+    "type": "combat",
+    "description": "Break another bed, get fireballed to death"
+  },
+  {
+    "start": 53.0,
+    "end": 76.0,
+    "type": "combat",
+    "description": "Killed by Aqua, skybridge fight, almost kill him but lose due to armor"
+  },
+  {
+    "start": 76.0,
+    "end": 85.0,
+    "type": "combat",
+    "description": "Aqua breaks my bed, then I combo him and kill him"
+  },
+  {
+    "start": 85.0,
+    "end": 92.0,
+    "type": "victory",
+    "description": "Break bed, win Game 1, then transition to Game 2"
+  },
+  {
+    "start": 92.0,
+    "end": 122.0,
+    "type": "combat",
+    "description": "Bridge, fireball Yellow to death, kill him twice more, break bed, then combo for final kill"
+  },
+  {
+    "start": 122.0,
+    "end": 158.0,
+    "type": "combat",
+    "description": "Aqua fireballs and kills me, I search for him while invisible, he kills me again, then fights me at base, breaks my bed, and gets the final kill"
+  },
+  {
+    "start": 158.0,
+    "end": 164.0,
+    "type": "transition",
+    "description": "Game 3 transition"
+  },
+  {
+    "start": 164.0,
+    "end": 192.0,
+    "type": "combat",
+    "description": "Combo Red, he kills me, bridge fight, he TNT jumps behind me, breaks my bed, then I kill him"
+  },
+  {
+    "start": 192.0,
+    "end": 212.0,
+    "type": "combat",
+    "description": "Collect emeralds at mid, kill Green, then Yellow attacks and I kill him too"
+  },
+  {
+    "start": 212.0,
+    "end": 231.433,
+    "type": "victory",
+    "description": "Kill player at his bed, break bed, get final kill, then victory"
+  }
+]
