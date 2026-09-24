@@ -6,6 +6,7 @@ import tempfile
 import unittest
 
 from retention import position_to_seconds, load_retention_csv, load_detailed_activity_csv
+from retention import group_retention_by_intervals
 
 
 class RetentionTests(unittest.TestCase):
@@ -74,6 +75,71 @@ class RetentionTests(unittest.TestCase):
         path = self.write_csv("All.csv", ["Video position (%)", "Absolute audience retention (%)"], [])
         self.assertEqual(load_retention_csv(path, 100), [])
 
+
+class IntervalGroupingTests(unittest.TestCase):
+    def annotation(self, start, end):
+        return {"start": start, "end": end, "type": "combat", "description": "Test interval"}
+
+    def row(self, timestamp):
+        return {"timestamp_seconds": timestamp, "Video position (%)": "12.50",
+                "Absolute audience retention (%)": "80.000"}
+
+    def test_inside_and_preservation(self):
+        annotation = self.annotation(10, 20)
+        annotation["extra_metadata"] = "keep this"
+        row = self.row(12.5)
+        result = group_retention_by_intervals([row], [annotation])
+        group = result["intervals"][0]
+        self.assertEqual(group, {"annotation": annotation, "samples": [row]})
+        self.assertEqual(result["unassigned"], [])
+        self.assertIsNot(group["annotation"], annotation)
+        self.assertIsNot(group["samples"][0], row)
+        self.assertNotIn("samples", annotation)
+        self.assertEqual(row, self.row(12.5))
+
+    def test_adjacent_boundaries(self):
+        rows = [self.row(0), self.row(10), self.row(20)]
+        result = group_retention_by_intervals(rows, [self.annotation(0, 10), self.annotation(10, 20)])
+        self.assertEqual(result["intervals"][0]["samples"], [rows[0]])
+        self.assertEqual(result["intervals"][1]["samples"], [rows[1]])
+        self.assertEqual(result["unassigned"], [rows[2]])
+
+    def test_multiple_samples_and_chronological_order(self):
+        rows = [self.row(15), self.row(4), self.row(2)]
+        annotations = [self.annotation(10, 20), self.annotation(0, 10)]
+        result = group_retention_by_intervals(rows, annotations)
+        self.assertEqual([group["annotation"]["start"] for group in result["intervals"]], [0, 10])
+        self.assertEqual(result["intervals"][0]["samples"], [rows[2], rows[1]])
+        self.assertEqual(result["intervals"][1]["samples"], [rows[0]])
+        self.assertEqual([row["timestamp_seconds"] for row in rows], [15, 4, 2])
+        self.assertEqual([item["start"] for item in annotations], [10, 0])
+
+    def test_interval_without_samples(self):
+        annotation = self.annotation(10, 20)
+        self.assertEqual(group_retention_by_intervals([], [annotation]),
+                         {"intervals": [{"annotation": annotation, "samples": []}], "unassigned": []})
+
+    def test_intentional_gap(self):
+        rows = [self.row(18.5), self.row(18), self.row(19)]
+        result = group_retention_by_intervals(rows, [self.annotation(0, 18), self.annotation(19, 27)])
+        self.assertEqual(result["unassigned"], [rows[1], rows[0]])
+        self.assertEqual(result["intervals"][1]["samples"], [rows[2]])
+
+    def test_final_endpoint_not_extended(self):
+        rows = [self.row(231.432), self.row(231.433), self.row(231.433288)]
+        result = group_retention_by_intervals(rows, [self.annotation(212, 231.433)])
+        self.assertEqual(result["intervals"][0]["samples"], rows[:1])
+        self.assertEqual(result["unassigned"], rows[1:])
+
+    def test_overlap_assigned_once(self):
+        row = self.row(12)
+        result = group_retention_by_intervals([row], [self.annotation(10, 20), self.annotation(0, 15)])
+        self.assertEqual([group["samples"] for group in result["intervals"]], [[row], []])
+
+    def test_no_annotations(self):
+        rows = [self.row(5), self.row(2)]
+        self.assertEqual(group_retention_by_intervals(rows, []),
+                         {"intervals": [], "unassigned": [rows[1], rows[0]]})
 
 if __name__ == "__main__":
     unittest.main()

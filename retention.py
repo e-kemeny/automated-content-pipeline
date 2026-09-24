@@ -53,3 +53,29 @@ def load_detailed_activity_csv(path, video_duration):
         POSITION, "Started watching", "Stopped watching",
         "Number of times each moment was seen",
     ))
+
+
+def group_retention_by_intervals(rows, annotations):
+    """Return chronological interval groups and unassigned samples.
+
+    Each group has an annotation dictionary and a samples list. All intervals
+    use [start, end), including the final interval: endpoints are never extended
+    or inferred from samples. Gaps and samples at the final end stay unassigned.
+    Overlaps assign a sample only to the first interval sorted by (start, end).
+    Inputs are not mutated; metadata and row dictionaries are copied unchanged.
+    """
+    groups = [
+        {"annotation": dict(annotation), "samples": []}
+        for annotation in sorted(annotations, key=lambda item: (item["start"], item["end"]))
+    ]
+    unassigned = []
+    for row in sorted(rows, key=lambda item: item["timestamp_seconds"]):
+        timestamp = row["timestamp_seconds"]
+        for group in groups:
+            annotation = group["annotation"]
+            if annotation["start"] <= timestamp < annotation["end"]:
+                group["samples"].append(dict(row))
+                break
+        else:
+            unassigned.append(dict(row))
+    return {"intervals": groups, "unassigned": unassigned}
