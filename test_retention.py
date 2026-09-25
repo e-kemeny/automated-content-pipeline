@@ -1,12 +1,13 @@
 """Run with python -m unittest -v test_retention."""
 
 import csv
+from copy import deepcopy
 from pathlib import Path
 import tempfile
 import unittest
 
 from retention import position_to_seconds, load_retention_csv, load_detailed_activity_csv
-from retention import group_retention_by_intervals
+from retention import group_retention_by_intervals, summarize_retention_intervals
 
 
 class RetentionTests(unittest.TestCase):
@@ -140,6 +141,72 @@ class IntervalGroupingTests(unittest.TestCase):
         rows = [self.row(5), self.row(2)]
         self.assertEqual(group_retention_by_intervals(rows, []),
                          {"intervals": [], "unassigned": [rows[1], rows[0]]})
+
+
+class IntervalSummaryTests(unittest.TestCase):
+    def group(self, values):
+        return {
+            "annotation": {"start": 0.0, "end": 10.0, "type": "combat",
+                           "description": "Test only", "extra_metadata": "preserved"},
+            "samples": [{"timestamp_seconds": index, "Absolute audience retention (%)": value}
+                        for index, value in enumerate(values)],
+        }
+
+    def test_mean_min_max(self):
+        summary = summarize_retention_intervals([self.group(["80.50", "100.25", "90.00"])])[0]
+        self.assertEqual(summary["sample_count"], 3)
+        self.assertAlmostEqual(summary["mean_retention"], 90.25)
+        self.assertEqual(summary["min_retention"], 80.5)
+        self.assertEqual(summary["max_retention"], 100.25)
+
+    def test_first_last_and_positive_change(self):
+        summary = summarize_retention_intervals([self.group(["80", "110", "90"])])[0]
+        self.assertEqual(summary["start_retention"], 80)
+        self.assertEqual(summary["end_retention"], 90)
+        self.assertEqual(summary["retention_change"], 10)
+
+    def test_negative_change(self):
+        summary = summarize_retention_intervals([self.group(["90", "50", "80"])])[0]
+        self.assertEqual(summary["start_retention"], 90)
+        self.assertEqual(summary["end_retention"], 80)
+        self.assertEqual(summary["retention_change"], -10)
+
+    def test_one_sample(self):
+        summary = summarize_retention_intervals([self.group(["72.125"])])[0]
+        self.assertEqual(summary["sample_count"], 1)
+        for key in ("mean_retention", "min_retention", "max_retention", "start_retention", "end_retention"):
+            self.assertEqual(summary[key], 72.125)
+        self.assertEqual(summary["retention_change"], 0)
+
+    def test_empty_interval(self):
+        group = self.group([])
+        summary = summarize_retention_intervals([group])[0]
+        self.assertEqual(summary["annotation"], group["annotation"])
+        self.assertEqual(summary["sample_count"], 0)
+        for key in ("mean_retention", "min_retention", "max_retention", "start_retention", "end_retention", "retention_change"):
+            self.assertIsNone(summary[key])
+
+    def test_preservation_and_chronological_order(self):
+        early = self.group([])["annotation"]
+        late = dict(early, start=10.0, end=20.0, type="victory")
+        rows = [{"timestamp_seconds": 12, "Absolute audience retention (%)": "102.500"},
+                {"timestamp_seconds": 3, "Absolute audience retention (%)": "080.250"},
+                {"timestamp_seconds": 30, "Absolute audience retention (%)": "60"}]
+        grouped = group_retention_by_intervals(rows, [late, early])
+        before = deepcopy(grouped)
+        summaries = summarize_retention_intervals(grouped["intervals"])
+        self.assertEqual([summary["annotation"] for summary in summaries], [early, late])
+        self.assertEqual([summary["start_retention"] for summary in summaries], [80.25, 102.5])
+        self.assertIsNot(summaries[0]["annotation"], grouped["intervals"][0]["annotation"])
+        self.assertEqual(grouped, before)
+
+    def test_invalid_values_rejected(self):
+        for value in ("", "not numeric", "nan", "inf", "-inf"):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                summarize_retention_intervals([self.group([value])])
+
+    def test_no_intervals(self):
+        self.assertEqual(summarize_retention_intervals([]), [])
 
 if __name__ == "__main__":
     unittest.main()

@@ -79,3 +79,30 @@ def group_retention_by_intervals(rows, annotations):
         else:
             unassigned.append(dict(row))
     return {"intervals": groups, "unassigned": unassigned}
+
+
+def summarize_retention_intervals(interval_groups):
+    """Summarize grouped['intervals'] without modifying annotations or rows.
+
+    Groups and samples retain the chronological order supplied by
+    group_retention_by_intervals(). The mean is an unweighted sample mean;
+    change is last minus first, in percentage points, not a quality score.
+    Invalid or nonfinite retention values raise ValueError rather than being
+    skipped or replaced with zero. Empty intervals have None statistics.
+    """
+    summaries = []
+    for group in interval_groups:
+        values = [float(row["Absolute audience retention (%)"]) for row in group["samples"]]
+        if any(not math.isfinite(value) for value in values):
+            raise ValueError("Retention values must be finite numbers.")
+        summaries.append({
+            "annotation": dict(group["annotation"]),
+            "sample_count": len(values),
+            "mean_retention": math.fsum(values) / len(values) if values else None,
+            "min_retention": min(values) if values else None,
+            "max_retention": max(values) if values else None,
+            "start_retention": values[0] if values else None,
+            "end_retention": values[-1] if values else None,
+            "retention_change": values[-1] - values[0] if values else None,
+        })
+    return summaries
