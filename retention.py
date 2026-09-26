@@ -9,6 +9,8 @@ import csv
 import math
 from pathlib import Path
 
+from annotate import load_annotations
+
 POSITION = "Video position (%)"
 
 
@@ -106,3 +108,24 @@ def summarize_retention_intervals(interval_groups):
             "retention_change": values[-1] - values[0] if values else None,
         })
     return summaries
+
+
+def align_retention_with_v2(rows, video_duration, annotation_path=None):
+    """Load V2 and return interval samples, unassigned rows, and summaries.
+
+    Pass rows from load_retention_csv(path, video_duration). By default, use
+    ground_truth_v2.json beside this module; an explicit path supports reuse.
+    Existing [start, end) rules apply, including the final endpoint. Start/end
+    retention means the earliest/latest observed sample INSIDE each interval;
+    no interpolation or borrowing from gaps/neighbors is performed.
+
+    Statistics describe observations from one edited video, not content quality.
+    Absolute retention naturally varies over the timeline and is not directly
+    comparable between early and late intervals.
+    """
+    if annotation_path is None:
+        annotation_path = Path(__file__).resolve().with_name("ground_truth_v2.json")
+    annotations = load_annotations(Path(annotation_path), video_duration)
+    grouped = group_retention_by_intervals(rows, annotations)
+    grouped["summaries"] = summarize_retention_intervals(grouped["intervals"])
+    return grouped

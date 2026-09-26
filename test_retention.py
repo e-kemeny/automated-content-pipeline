@@ -1,6 +1,7 @@
 """Run with python -m unittest -v test_retention."""
 
 import csv
+import json
 from copy import deepcopy
 from pathlib import Path
 import tempfile
@@ -8,6 +9,7 @@ import unittest
 
 from retention import position_to_seconds, load_retention_csv, load_detailed_activity_csv
 from retention import group_retention_by_intervals, summarize_retention_intervals
+from retention import align_retention_with_v2
 
 
 class RetentionTests(unittest.TestCase):
@@ -207,6 +209,64 @@ class IntervalSummaryTests(unittest.TestCase):
 
     def test_no_intervals(self):
         self.assertEqual(summarize_retention_intervals([]), [])
+
+
+class V2AlignmentTests(unittest.TestCase):
+    def test_existing_v2_boundaries_gaps_and_final_end(self):
+        path = Path(__file__).resolve().with_name("ground_truth_v2.json")
+        original = path.read_bytes()
+        annotations = json.loads(original)
+        times = [231.433288, 231.433, 231.432, 27, 19, 18.5, 18, 5]
+        rows = [{"timestamp_seconds": second, "Absolute audience retention (%)": "80.00"}
+                for second in times]
+        before = deepcopy(rows)
+        result = align_retention_with_v2(rows, 231.433288)
+        self.assertEqual(len(result["intervals"]), 14)
+        self.assertEqual([group["annotation"] for group in result["intervals"]], annotations)
+        self.assertEqual([row["timestamp_seconds"] for row in result["unassigned"]],
+                         [18, 18.5, 231.433, 231.433288])
+        assigned = [[row["timestamp_seconds"] for row in group["samples"]]
+                    for group in result["intervals"]]
+        self.assertEqual(assigned[0], [5])
+        self.assertEqual(assigned[1], [19])
+        self.assertEqual(assigned[2], [27])
+        self.assertEqual(assigned[-1], [231.432])
+        self.assertEqual(sum(map(len, assigned)), 4)
+        self.assertEqual(rows, before)
+        self.assertEqual(path.read_bytes(), original)
+
+    def test_csv_to_interval_statistics(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parent) as directory:
+            path = Path(directory) / "intervals.json"
+            annotations = [
+                {"start": 0, "end": 10, "type": "intro", "description": "Test only"},
+                {"start": 12, "end": 20, "type": "combat", "description": "Test only"},
+                {"start": 20, "end": 30, "type": "victory", "description": "Empty test interval"},
+            ]
+            path.write_text(json.dumps(annotations), encoding="utf-8")
+            csv_path = Path(directory) / "All.csv"
+            csv_path.write_text(
+                "Video position (%),Absolute audience retention (%)\n"
+                "15,90\n2,80\n11,999\n8,100\n18,70\n", encoding="utf-8")
+            result = align_retention_with_v2(load_retention_csv(csv_path, 100), 100, path)
+            first, second, empty = result["summaries"]
+            self.assertEqual(first, dict(annotation=annotations[0], sample_count=2,
+                mean_retention=90, min_retention=80, max_retention=100,
+                start_retention=80, end_retention=100, retention_change=20))
+            self.assertEqual(second, dict(annotation=annotations[1], sample_count=2,
+                mean_retention=80, min_retention=70, max_retention=90,
+                start_retention=90, end_retention=70, retention_change=-20))
+            self.assertEqual(empty["sample_count"], 0)
+            self.assertIsNone(empty["mean_retention"])
+            self.assertEqual(result["unassigned"][0]["timestamp_seconds"], 11)
+            self.assertEqual(result["intervals"][0]["samples"][0]["Absolute audience retention (%)"], "80")
+
+    def test_no_observations_keeps_all_v2_intervals(self):
+        result = align_retention_with_v2([], 231.433288)
+        self.assertEqual(len(result["summaries"]), 14)
+        self.assertTrue(all(item["sample_count"] == 0 for item in result["summaries"]))
+        self.assertTrue(all(item["retention_change"] is None for item in result["summaries"]))
+        self.assertEqual(result["unassigned"], [])
 
 if __name__ == "__main__":
     unittest.main()
