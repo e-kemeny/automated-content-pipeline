@@ -1,0 +1,4 @@
+# Reuse CLIP environment; no changes to previous experiment requirements.
+-r requirements-clip.txt
+torchvision==0.28.0
+num2words==0.5.14
