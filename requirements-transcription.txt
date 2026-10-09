@@ -1,0 +1,9 @@
+# Optional ASR stage: install in a separate environment, not the CLIP/VLM environment.
+# Verified Windows CPython 3.14 wheels; small.en defaults to CPU/int8.
+faster-whisper==1.2.1
+ctranslate2==4.8.2
+av==16.1.0
+onnxruntime==1.31.0
+huggingface-hub==0.36.2
+tokenizers==0.22.2
+
