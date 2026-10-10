@@ -1,0 +1,3 @@
+# Optional local text stage; install separately or reuse verified libraries read-only.
+torch==2.13.0
+transformers==4.57.6

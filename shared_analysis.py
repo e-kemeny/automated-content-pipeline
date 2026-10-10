@@ -70,12 +70,16 @@ def _interval(row, duration):
 def _validate_signal(item, kind, duration):
     if set(item) != {"status", "data", "provenance"}:
         raise ValueError("Invalid signal envelope")
-    if item["status"] not in ("not_analyzed", "analyzed"):
+    language = kind in LANGUAGE_SIGNALS
+    allowed = ("not_analyzed", "analyzed", "partial", "failed") if language else ("not_analyzed", "analyzed")
+    if item["status"] not in allowed:
         raise ValueError("Unsupported signal status")
     if not isinstance(item["data"], list) or not isinstance(item["provenance"], dict):
         raise ValueError("Signal data must be a list and provenance an object")
     if item["status"] == "not_analyzed" and item["data"]:
         raise ValueError("not_analyzed cannot contain observations")
+    scored_stage = language and (item["provenance"].get("producer") == "language-v1" or
+                                 item["status"] in ("partial", "failed"))
     previous = None
     for row in item["data"]:
         if not isinstance(row, dict):
@@ -103,9 +107,30 @@ def _validate_signal(item, kind, duration):
                     raise ValueError("Window duration disagrees with bounds")
             elif kind == "transcript" and not isinstance(row["text"], str):
                 raise ValueError("Transcript text must be a string")
+        if scored_stage:
+            if row["status"] not in ("scored", "invalid_output", "inference_error"):
+                raise ValueError("Invalid language row status")
+            if row["status"] == "scored":
+                if not 0 <= _number(row["score"]) <= 1 or row.get("failure_reason") is not None:
+                    raise ValueError("Invalid successful language score")
+            elif row.get("score") is not None or not isinstance(row.get("failure_reason"), str) or not row["failure_reason"]:
+                raise ValueError("Failed language observations require a reason and no score")
+            if row["status"] != "inference_error" and not isinstance(row.get("raw_output"), str):
+                raise ValueError("Successful or invalid-output rows must preserve raw text")
+            if not isinstance(row.get("text"), str) or row.get("raw_output") is not None and not isinstance(row["raw_output"], str):
+                raise ValueError("Invalid language evidence")
         if previous is not None and key < previous:
             raise ValueError("Observations must be chronological (start then end for intervals)")
         previous = key
+
+    if scored_stage:
+        if not all("status" in row for row in item["data"]):
+            raise ValueError("Cannot mix scored-stage and legacy language rows")
+        total = len(item["data"])
+        successes = sum(row["status"] == "scored" for row in item["data"])
+        expected = "analyzed" if successes == total else ("partial" if successes else "failed")
+        if item["status"] != expected:
+            raise ValueError("Language completion status disagrees with outcomes")
 
 
 def validate_analysis(result):

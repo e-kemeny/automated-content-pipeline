@@ -108,3 +108,16 @@ There are no inference, FFmpeg, transcription, model, ranking, boundary, or
 clipping calls in shared_analysis.py. Output decisions remain future work.
 
 Run python -m unittest test_shared_analysis -v, then the existing relevant suite.
+
+## Additive language-stage extension
+
+Transcript-Based Language Scoring V1 retains schema_version 1 and the original
+envelopes. Language envelopes additionally accept partial and failed statuses.
+New producer rows use scored/invalid_output/inference_error, a numeric [0,1]
+score only on success, and null scores with reasons on failure. Legacy language
+rows remain supported. Other signals still accept only not_analyzed/analyzed.
+
+See docs/language_scoring_v1.md for the contextual model, exact prompt location,
+smoke gate, completion semantics and cache signature. Empty analyzed speech
+produces analyzed-empty language signals without loading a model. Complete
+status means structurally successful scoring, not objective judgment accuracy.
