@@ -222,3 +222,8 @@ videos/
 output/
 # Local YouTube audience-retention exports
 /Audience retention 3 New BEST 16x Bedwars Texture Packs/
+
+# Alternate local environments and private environment settings
+.venv-*/
+.env.*
+!.env.example
