@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 
 from export_shorts import plan_export as validate_source_selection, probe_clip, verify_duration
+from export_shorts import validate_cached_file, require_cached_identity
 from shared_analysis import load_analysis
 from transcription import media_sha256
 from windows import build_candidate_windows
@@ -121,9 +122,49 @@ def save_manifest(manifest,path,original):
         temporary.unlink(missing_ok=True)
 
 
+
+def cached_longform(directory, manifest):
+    path = directory/"longform_manifest.json"
+    if path.is_symlink():
+        raise ValueError("Refusing symlink manifest")
+    original = path.read_bytes()
+    prior = read_previous(path, manifest)
+    require_cached_identity(prior, manifest)
+    if (prior["plan_signature"] != manifest["plan_signature"] or
+            prior.get("planning") != manifest["planning"] or
+            prior["assembly"]["status"] not in ("complete", "reused") or
+            prior["assembly"].get("error") is not None or
+            prior["assembly"].get("assembled_segment_count") != len(manifest["segments"])):
+        raise ValueError("Cache-only stale or incomplete assembly")
+    rows = prior.get("segments")
+    if not isinstance(rows, list) or len(rows) != len(manifest["segments"]):
+        raise ValueError("Cache-only incomplete segment records")
+    for old, row in zip(rows, manifest["segments"]):
+        if (not isinstance(old, dict) or old.get("status") not in ("assembled", "reused_from_final") or
+                old.get("error") is not None or
+                any(old.get(k) != v for k,v in row.items() if k not in ("status", "error"))):
+            raise ValueError("Cache-only invalid segment records")
+    expected_hash = owned_hash(prior)
+    verified, error = validate_cached_file(directory/"longform_v1.mp4", expected_hash,
+                                           manifest["planning"]["estimated_duration_seconds"])
+    manifest["assembly"].update(status="reused", verification=verified,
+        assembled_segment_count=len(manifest["segments"]),
+        actual_duration_seconds=verified["duration_seconds"],
+        duration_error_seconds=error, output_sha256=expected_hash)
+    for row in manifest["segments"]:
+        row["status"] = "reused_from_final"
+    if path.is_symlink() or path.read_bytes() != original:
+        raise ValueError("Cache manifest changed during validation")
+    return directory, manifest
+
+
 def export_longform(video,analysis_path,*,output_root=Path("output"),seconds_before=15,
-                    seconds_after=15,merge_gap=5,dry_run=False,force=False):
+                    seconds_after=15,merge_gap=5,dry_run=False,force=False,cache_only=False):
+    if cache_only and (force or dry_run):
+        raise ValueError("cache-only conflicts with force and dry-run")
     video,directory,manifest=prepare_plan(video,analysis_path,output_root,seconds_before,seconds_after,merge_gap)
+    if cache_only:
+        return cached_longform(directory,manifest)
     if dry_run:
         return directory,manifest
     output=directory/"longform_v1.mp4"
@@ -218,11 +259,14 @@ def main(argv=None):
     parser.add_argument("--merge-gap",type=float,default=5)
     parser.add_argument("--dry-run",action="store_true")
     parser.add_argument("--force",action="store_true")
+    parser.add_argument("--cache-only",action="store_true")
     args=parser.parse_args(argv)
+    if args.cache_only and (args.force or args.dry_run):
+        parser.error("--cache-only conflicts with --force and --dry-run")
     try:
         directory,manifest=export_longform(args.video,args.analysis,output_root=args.output_root,
             seconds_before=args.seconds_before,seconds_after=args.seconds_after,merge_gap=args.merge_gap,
-            dry_run=args.dry_run,force=args.force)
+            dry_run=args.dry_run,force=args.force,cache_only=args.cache_only)
     except (ValueError,OSError,subprocess.SubprocessError) as exc:
         parser.exit(1,f"Long-form export failed: {exc}\n")
     print(f"Preselected {manifest['planning']['selection_provenance']['detector']} anchors: "

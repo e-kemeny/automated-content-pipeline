@@ -13,13 +13,19 @@ def main(argv=None):
     parser.add_argument("--mode", choices=("shorts", "longform", "both"), default="both")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--cache-only", action="store_true")
     args = parser.parse_args(argv)
+    if args.cache_only and (args.force or args.dry_run):
+        parser.error("--cache-only conflicts with --force and --dry-run")
 
     forwarded = [str(args.video), "--analysis", str(args.analysis)]
     if args.dry_run:
         forwarded.append("--dry-run")
     if args.force:
         forwarded.append("--force")
+
+    if args.cache_only:
+        forwarded.append("--cache-only")
 
     outcomes = []
     for mode, label, exporter in (

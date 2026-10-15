@@ -102,3 +102,27 @@ No complete concurrency lock across all exports is provided. Exclusive file
 publication and manifest checks prevent unrelated overwrite; an interrupted run
 may leave valid clips without a completed manifest, which are conservatively
 treated as unowned on the next run. Human review is still required.
+
+## Strict cache-only verification
+
+Add --cache-only to validate and reuse existing outputs without writing any
+artifact or creating directories. It conflicts with --force and --dry-run
+(CLI exit code 2). Missing/invalid/stale caches fail with a nonzero exit code;
+there is no encoding, repair, or inference fallback.
+
+The current source identity, shared-analysis hash/version, selection/planning
+configuration, successful manifest records, MP4 hashes, audio/video streams and
+durations must validate. Cache-only is intentionally stricter than normal reuse:
+even unrelated changes to the analysis JSON invalidate its saved hash.
+FFprobe and file hashing are read-only; source analysis is not rerun.
+Returned reuse statuses exist only in memory: manifests remain byte-for-byte
+unchanged. Normal export behavior is unchanged.
+
+    python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --mode both --cache-only
+
+Both mode reports each exporter separately and returns nonzero on partial
+failure. Each exporter CLI also accepts --cache-only. No cross-process lock is
+provided: a disappearing artifact causes failure, never encoding. Avoid concurrent
+writers during verification; these checks cannot prevent another process from
+changing a file after the final read. Stream metadata checks are not a full
+decode or perceptual playback assessment.

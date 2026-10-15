@@ -145,8 +145,67 @@ def previous_manifest(directory, manifest):
     return {row["output_filename"]:row for row in prior["clips"]}
 
 
-def export_shorts(video, analysis_path, *, top_k=5, output_root=Path("output"), dry_run=False, force=False):
+
+def validate_cached_file(path, expected_hash, duration):
+    """Read-only integrity check; a missing/disappearing file always raises."""
+    if path.is_symlink() or not path.is_file() or not expected_hash:
+        raise ValueError(f"Cache-only requires an existing owned file: {path}")
+    if media_sha256(path) != expected_hash:
+        raise ValueError(f"Cache-only hash mismatch: {path}")
+    verified = probe_clip(path)
+    error = verify_duration(verified, duration)
+    if path.is_symlink() or media_sha256(path) != expected_hash:
+        raise ValueError(f"Cache changed during validation: {path}")
+    return verified, error
+
+
+def require_cached_identity(prior, manifest):
+    """Require the exact source, analysis and encoding used by the current plan."""
+    if not isinstance(prior, dict):
+        raise ValueError("Cache-only requires a valid manifest")
+    for key in ("manifest_version", "exporter", "source", "encoding"):
+        if prior.get(key) != manifest[key]:
+            raise ValueError(f"Cache-only stale manifest: {key}")
+    if not isinstance(prior.get("shared_analysis"), dict) or any(
+        prior["shared_analysis"].get(k) != manifest["shared_analysis"][k]
+        for k in ("sha256", "schema_version")
+    ):
+        raise ValueError("Cache-only stale shared analysis")
+
+
+def cached_shorts(directory, manifest):
+    path = directory/"shorts_manifest.json"
+    if path.is_symlink():
+        raise ValueError("Refusing symlink manifest")
+    original = path.read_bytes()
+    prior = json.loads(original)
+    require_cached_identity(prior, manifest)
+    previous = previous_manifest(directory, manifest)
+    if prior.get("selection") != manifest["selection"] or len(prior["clips"]) != len(manifest["clips"]):
+        raise ValueError("Cache-only stale selection")
+    if set(previous) != {r["output_filename"] for r in manifest["clips"]}:
+        raise ValueError("Cache-only incomplete clip manifest")
+    for row in manifest["clips"]:
+        old = previous[row["output_filename"]]
+        if old.get("status") not in ("exported", "reused") or old.get("error") is not None:
+            raise ValueError("Cache-only requires successful clip records")
+        if any(old.get(k) != v for k, v in row.items() if k not in ("status", "error")):
+            raise ValueError("Cache-only stale clip evidence or boundaries")
+        verified, error = validate_cached_file(directory/row["output_filename"],
+                                               old.get("output_sha256"), row["duration"])
+        row.update(status="reused", verification=verified, duration_error_seconds=error,
+                   output_sha256=old["output_sha256"])
+    if path.is_symlink() or path.read_bytes() != original:
+        raise ValueError("Cache manifest changed during validation")
+    return directory, manifest
+
+
+def export_shorts(video, analysis_path, *, top_k=5, output_root=Path("output"), dry_run=False, force=False, cache_only=False):
+    if cache_only and (force or dry_run):
+        raise ValueError("cache-only conflicts with force and dry-run")
     video, directory, manifest = plan_export(video, analysis_path, top_k, output_root)
+    if cache_only:
+        return cached_shorts(directory, manifest)
     if dry_run:
         return directory, manifest  # No mkdir, manifest write, clip write, or FFmpeg.
     manifest_path = directory/"shorts_manifest.json"
@@ -226,10 +285,13 @@ def main(argv=None):
     parser.add_argument("--output-root",type=Path,default=Path("output"))
     parser.add_argument("--dry-run",action="store_true")
     parser.add_argument("--force",action="store_true")
+    parser.add_argument("--cache-only",action="store_true")
     args=parser.parse_args(argv)
+    if args.cache_only and (args.force or args.dry_run):
+        parser.error("--cache-only conflicts with --force and --dry-run")
     try:
         directory,manifest=export_shorts(args.video,args.analysis,top_k=args.top_k,
-            output_root=args.output_root,dry_run=args.dry_run,force=args.force)
+            output_root=args.output_root,dry_run=args.dry_run,force=args.force,cache_only=args.cache_only)
     except (ValueError,OSError,subprocess.SubprocessError) as exc:
         parser.exit(1,f"Shorts export failed: {exc}\n")
     print(f"{manifest['selection']['mode']} ({manifest['selection']['detector']}); {directory}")
