@@ -60,3 +60,13 @@ Do not commit local media, model caches, credentials, or audience exports.
 Keep frozen results/, annotations, prompts and provenance under version control.
 Ignored output/ also contains valuable analysis and environment state: it is
 not disposable merely because Git ignores it.
+
+## Regression verification
+
+Use python verify.py to run unittest discovery and all four motion checks.
+For existing local caches, also run:
+
+    python verify.py --cached-export --video videos/my_recording.mp4 --analysis output/shared_analysis_v1.json
+
+This uses strict cache-only export and checks all nine artifact hashes/mtimes.
+See [Verification V1](verification_v1.md) for prerequisites and failure behavior.
