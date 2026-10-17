@@ -108,3 +108,22 @@ This is a proposal, not a directory migration or approved API change.
 Risks include import-time analysis, changed tie/order behavior, overwritten
 research artifacts, loss of local ignored evidence, invalidated cache identity,
 and accidental cross-environment upgrades. No such refactor is part of V1.
+
+## Import-safety update (2026-10-17)
+
+main.py now exposes run_pipeline() for explicit execution and main() for the
+unchanged CLI. Import no longer checks video existence, probes/extracts/processes
+media, evaluates candidates, prints diagnostics or cuts clips. Reusable helpers
+and the default video_path remain accessible. No model was loaded by the old
+runner; this change adds none.
+
+The three fixed/dynamic research runners now call run_pipeline() explicitly and
+consume its returned duration_seconds, audio_scores and scene_scores rather than
+runpy execution globals. Algorithm statements, order and FFmpeg arguments remain
+unchanged. Historical inventory above describes the pre-refactor state.
+
+Remaining debt: execution still uses CWD-relative fixed media/output paths,
+overwrites normal clips, couples analysis/evaluation/export, and retains existing
+error handling and stream-copy boundary behavior. Research runners still execute
+the full workflow and can replace reports. No package reorganization or behavior
+cleanup was performed.

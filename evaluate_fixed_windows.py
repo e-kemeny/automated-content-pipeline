@@ -98,7 +98,7 @@ def main():
     original_directory = Path.cwd()
     try:
         os.chdir(repo)  # Existing main.py resolves its media paths from the CWD.
-        state = runpy.run_path(str(repo / "main.py"), run_name="__main__")
+        state = runpy.run_path(str(repo / "main.py"), run_name="pipeline_definition")["run_pipeline"]()
     finally:
         os.chdir(original_directory)
     duration = state["duration_seconds"]

@@ -122,7 +122,7 @@ def main():
     cwd = Path.cwd()
     try:
         os.chdir(repo)
-        state = runpy.run_path(str(repo/"main.py"), run_name="__main__")
+        state = runpy.run_path(str(repo/"main.py"), run_name="pipeline_definition")["run_pipeline"]()
     finally:
         os.chdir(cwd)
     duration = state["duration_seconds"]

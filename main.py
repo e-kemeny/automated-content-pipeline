@@ -9,12 +9,6 @@ from motion import analyze_motion, add_motion_scores
 
 video_path = Path("videos/my_recording.mp4")
 
-if video_path.exists():
-    print("Video Found: ", video_path)
-else:
-    raise SystemExit("Error: video not found")
-
-
 def get_video_duration(video_path):
     result = subprocess.run(
         [
@@ -38,16 +32,6 @@ def get_video_duration(video_path):
         return duration_seconds
 
     return None
-
-duration_seconds = get_video_duration(video_path)
-
-if duration_seconds is not None:
-    duration_minutes = duration_seconds // 60
-    leftover_seconds = duration_seconds % 60
-
-    print(f"Duration: {int(duration_minutes)}:{int(leftover_seconds):02d}")
-else:
-    print("No duration found.")
 
 def cut_clip(video_path, start_time, end_time, clip_number):
     if end_time <= start_time:
@@ -100,8 +84,6 @@ def extract_audio(video_path):
         print("Audio extracted:", output_path)
     else:
         print("Error extracting audio")
-
-extract_audio(video_path)
 
 def analyze_video_motion(video_path):
     command = [
@@ -200,75 +182,104 @@ def analyze_audio(audio_path):
         print("Top combined scores: ", sorted_scores[:5])
         return sorted_scores
 
-audio_scores = analyze_audio(Path("output/audio.wav"))
-scene_scores = analyze_video_motion(video_path)
-print(audio_scores[:2])
-print(scene_scores[:2])
+def run_pipeline():
+    """Execute the original workflow and return evidence used by research runners."""
+    if video_path.exists():
+        print("Video Found: ", video_path)
+    else:
+        raise SystemExit("Error: video not found")
 
-max_audio_score = audio_scores[0]["score"]
-max_scene_score = scene_scores[0]["score"]
+    duration_seconds = get_video_duration(video_path)
 
-for item in audio_scores:
-    item["normalized_score"] = item["score"] / max_audio_score
+    if duration_seconds is not None:
+        duration_minutes = duration_seconds // 60
+        leftover_seconds = duration_seconds % 60
 
-for item in scene_scores:
-    item["normalized_score"] = item["score"] / max_scene_score
+        print(f"Duration: {int(duration_minutes)}:{int(leftover_seconds):02d}")
+    else:
+        print("No duration found.")
 
-for audio_item in audio_scores:
-    audio_second = audio_item["second"]
-    best_scene_score = 0
+    extract_audio(video_path)
 
-    for scene_item in scene_scores:
-        scene_second = scene_item["time"]
+    audio_scores = analyze_audio(Path("output/audio.wav"))
+    scene_scores = analyze_video_motion(video_path)
+    print(audio_scores[:2])
+    print(scene_scores[:2])
 
-        if abs(audio_second - scene_second) <= 5:
-            best_scene_score = max(
-                best_scene_score,
-                scene_item["normalized_score"]
-            )
+    max_audio_score = audio_scores[0]["score"]
+    max_scene_score = scene_scores[0]["score"]
 
-    audio_item["scene_score"] = best_scene_score
+    for item in audio_scores:
+        item["normalized_score"] = item["score"] / max_audio_score
 
-for audio_item in audio_scores:
-    audio_item["highlight_score"] = (
-        0.7 * audio_item["normalized_score"]
-        + 0.3 * audio_item["scene_score"]
-    )
+    for item in scene_scores:
+        item["normalized_score"] = item["score"] / max_scene_score
 
-audio_highlights = select_highlights(audio_scores, "score")
-selected_highlights = select_highlights(audio_scores, "highlight_score")
+    for audio_item in audio_scores:
+        audio_second = audio_item["second"]
+        best_scene_score = 0
 
-for name, highlights in [("AUDIO-ONLY", audio_highlights), ("AUDIO + SCENE", selected_highlights)]:
-    predictions = [item["second"] for item in highlights]
-    print_evaluation(name, evaluate_predictions(predictions, GROUND_TRUTH))
+        for scene_item in scene_scores:
+            scene_second = scene_item["time"]
 
-# Ranking diagnostics only; clip generation still uses the top five above.
-for name, score_key in [("AUDIO-ONLY", "score"), ("AUDIO + SCENE", "highlight_score")]:
-    top_ten = select_highlights(audio_scores, score_key, limit=10)
-    predictions = [item["second"] for item in top_ten]
-    print_evaluation(
-        f"{name} TOP 10",
-        evaluate_predictions(predictions, GROUND_TRUTH),
-        show_diagnostics=True,
-    )
+            if abs(audio_second - scene_second) <= 5:
+                best_scene_score = max(
+                    best_scene_score,
+                    scene_item["normalized_score"]
+                )
 
-# Motion is evaluation-only; production clips still use Audio + Scene.
-print("\nAnalyzing motion/activity: 5 fps, 160x90 grayscale")
-motion_scores = analyze_motion(video_path)
-add_motion_scores(audio_scores, motion_scores)
-for limit in (5, 10):
-    motion_highlights = select_highlights(audio_scores, "motion_highlight_score", limit=limit)
-    predictions = [item["second"] for item in motion_highlights]
-    print_evaluation(
-        f"AUDIO + MOTION TOP {limit}",
-        evaluate_predictions(predictions, GROUND_TRUTH),
-        show_diagnostics=True,
-    )
+        audio_item["scene_score"] = best_scene_score
 
-print("Selected highlights:")
-for index, item in enumerate(selected_highlights, start=1):
-    second = item["second"]
-    print(f"  {index}. {second}s | highlight score: {item['highlight_score']:.6f}")
-    start_time = max(0, second - 10)
-    end_time = min(duration_seconds, second + 5)
-    cut_clip(video_path, start_time, end_time, index)
+    for audio_item in audio_scores:
+        audio_item["highlight_score"] = (
+            0.7 * audio_item["normalized_score"]
+            + 0.3 * audio_item["scene_score"]
+        )
+
+    audio_highlights = select_highlights(audio_scores, "score")
+    selected_highlights = select_highlights(audio_scores, "highlight_score")
+
+    for name, highlights in [("AUDIO-ONLY", audio_highlights), ("AUDIO + SCENE", selected_highlights)]:
+        predictions = [item["second"] for item in highlights]
+        print_evaluation(name, evaluate_predictions(predictions, GROUND_TRUTH))
+
+    # Ranking diagnostics only; clip generation still uses the top five above.
+    for name, score_key in [("AUDIO-ONLY", "score"), ("AUDIO + SCENE", "highlight_score")]:
+        top_ten = select_highlights(audio_scores, score_key, limit=10)
+        predictions = [item["second"] for item in top_ten]
+        print_evaluation(
+            f"{name} TOP 10",
+            evaluate_predictions(predictions, GROUND_TRUTH),
+            show_diagnostics=True,
+        )
+
+    # Motion is evaluation-only; production clips still use Audio + Scene.
+    print("\nAnalyzing motion/activity: 5 fps, 160x90 grayscale")
+    motion_scores = analyze_motion(video_path)
+    add_motion_scores(audio_scores, motion_scores)
+    for limit in (5, 10):
+        motion_highlights = select_highlights(audio_scores, "motion_highlight_score", limit=limit)
+        predictions = [item["second"] for item in motion_highlights]
+        print_evaluation(
+            f"AUDIO + MOTION TOP {limit}",
+            evaluate_predictions(predictions, GROUND_TRUTH),
+            show_diagnostics=True,
+        )
+
+    print("Selected highlights:")
+    for index, item in enumerate(selected_highlights, start=1):
+        second = item["second"]
+        print(f"  {index}. {second}s | highlight score: {item['highlight_score']:.6f}")
+        start_time = max(0, second - 10)
+        end_time = min(duration_seconds, second + 5)
+        cut_clip(video_path, start_time, end_time, index)
+    return dict(duration_seconds=duration_seconds, audio_scores=audio_scores,
+                scene_scores=scene_scores)
+
+
+def main():
+    run_pipeline()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
