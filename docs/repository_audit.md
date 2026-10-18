@@ -127,3 +127,30 @@ overwrites normal clips, couples analysis/evaluation/export, and retains existin
 error handling and stream-copy boundary behavior. Research runners still execute
 the full workflow and can replace reports. No package reorganization or behavior
 cleanup was performed.
+
+## FFprobe consolidation (2026-10-18)
+
+media_probe.probe_format_streams() extracts only the identical subprocess call
+and JSON decoding from transcription.probe_media() and export_shorts.probe_clip().
+Both use: ffprobe -v error -show_format -show_streams -of json <path>,
+check=True, capture_output=True, text=True, no timeout and no stream filter.
+Subprocess errors and JSONDecodeError propagate unchanged. The helper does not
+resolve paths, hash media, validate duration/streams, select streams or write files.
+
+Source probing still resolves/requires the input, requires positive finite duration
+and audio, hashes the source and optionally returns video dimensions/FPS.
+Clip probing still requires audio AND video, preserves its original error message,
+and returns its filtered stream metadata. Duration tolerance and all source/cache
+identity checks remain in their existing modules. Public interfaces are unchanged.
+
+Intentionally separate:
+- main.get_video_duration requests format=duration JSON, omits check=True, returns
+  None for absent duration, and does not apply the exporters' validation.
+- annotate/error_analysis request duration as plain text, not format/stream JSON;
+  annotation wraps errors and validates duration, diagnostic clipping differs.
+- CLIP/multiframe research uses duration-only JSON probing inside frozen workflows.
+- Long-form already reuses Shorts probing; shared_analysis and pipeline do not
+  probe directly. verify delegates to existing planners and the cache-only CLI.
+
+No timeout was introduced. Duplicate duration-only calls and source identity
+helpers remain future work; this is not a general configurable FFprobe framework.

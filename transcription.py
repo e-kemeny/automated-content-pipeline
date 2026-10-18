@@ -10,6 +10,8 @@ import subprocess
 import tempfile
 import time
 
+from media_probe import probe_format_streams
+
 MODEL_NAME = "small.en"
 MODEL_ID = "Systran/faster-whisper-small.en"
 
@@ -35,9 +37,7 @@ def media_sha256(path):
 def probe_media(path):
     """Actual source metadata for either audio or video; no inference."""
     path = require_media(path)
-    probe = subprocess.run(["ffprobe", "-v", "error", "-show_format", "-show_streams",
-                            "-of", "json", str(path)], check=True, capture_output=True, text=True)
-    data = json.loads(probe.stdout)
+    data = probe_format_streams(path)
     duration = float(data["format"]["duration"])
     if not math.isfinite(duration) or duration <= 0:
         raise ValueError("Media duration must be positive and finite")

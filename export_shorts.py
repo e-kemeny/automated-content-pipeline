@@ -10,6 +10,8 @@ from pathlib import Path
 import subprocess
 import tempfile
 
+from media_probe import probe_format_streams
+
 from evaluation import select_highlights
 from shared_analysis import load_analysis
 from transcription import media_sha256, probe_media, require_media
@@ -65,9 +67,7 @@ def select_windows(analysis, top_k):
 
 
 def probe_clip(path):
-    result = subprocess.run(["ffprobe","-v","error","-show_format","-show_streams","-of","json",str(path)],
-                            check=True,capture_output=True,text=True)
-    data = json.loads(result.stdout)
+    data = probe_format_streams(path)
     streams = data["streams"]
     duration = float(data["format"]["duration"])
     if not math.isfinite(duration) or duration <= 0 or not {"audio","video"} <= {s["codec_type"] for s in streams}:
