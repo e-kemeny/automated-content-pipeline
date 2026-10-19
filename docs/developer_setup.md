@@ -70,3 +70,13 @@ For existing local caches, also run:
 
 This uses strict cache-only export and checks all nine artifact hashes/mtimes.
 See [Verification V1](verification_v1.md) for prerequisites and failure behavior.
+
+## Environment diagnostics
+
+    python environment_check.py
+    python environment_check.py --profile transcription
+    python environment_check.py --profile language
+
+Run with the intended environment's interpreter. These read-only metadata checks
+do not load models or prove GPU compatibility. See [environment matrix](environment_matrix.md)
+and [portable setup plan](portable_setup_plan.md) for boundaries and known gaps.
