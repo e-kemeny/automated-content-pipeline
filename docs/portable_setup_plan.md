@@ -55,3 +55,17 @@ Remaining questions: binary wheel availability, transitive dependency conflicts,
 FFmpeg filter/codec parity, inherited site packages, cache-path identity,
 CPU/GPU numerical differences, inference memory/time and model-cache transfer.
 Use environment_matrix.md for observed versions and verification limits.
+
+## Relocation audit findings (2026-10-20)
+
+The audit confirms that copying the whole checkout to a new absolute source path
+fails strict cache-only validation: both manifests compare the entire source
+record, including source.path. Moving unchanged analysis or exports alone passes
+when the original source remains available (individual exporters accept an output
+root). Editing analysis locators changes its raw hash and also fails reuse.
+
+Next milestone: specify and test a versioned content-identity versus locator
+contract, preserving legacy safety checks and original provenance. Only then
+consider a dry-run-first migration on copies. Do not use ordinary export or force
+as an implicit migration. See [artifact relocation audit](artifact_relocation_audit.md)
+for the tested scenarios and exact errors. No production policy changed here.
