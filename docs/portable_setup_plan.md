@@ -69,3 +69,16 @@ contract, preserving legacy safety checks and original provenance. Only then
 consider a dry-run-first migration on copies. Do not use ordinary export or force
 as an implicit migration. See [artifact relocation audit](artifact_relocation_audit.md)
 for the tested scenarios and exact errors. No production policy changed here.
+
+## Portable identity design direction (2026-10-21)
+
+The source digest already exists in analysis and both manifests. Proposed export
+manifest V2 / source_identity V1 separates verified full-file SHA-256, byte count
+and non-location media metadata from historical location. Shared Analysis V1 bytes
+and raw-hash binding remain unchanged. Legacy V1 keeps its strict path checks;
+cache-only never migrates. This is a proposal, not implemented portability.
+
+Next: resolve signature/activation/stable-read details, then implement a read-only
+versioned compatibility reader with fixtures. An opt-in atomic migration on copies
+comes later. See [identity contract](portable_source_identity_v1.md) and
+[migration plan](source_identity_migration_plan.md). Do not rewrite existing paths.
