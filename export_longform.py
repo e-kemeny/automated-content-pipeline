@@ -14,6 +14,7 @@ from export_shorts import validate_cached_file, require_cached_identity
 from shared_analysis import load_analysis
 from transcription import media_sha256
 from windows import build_candidate_windows
+from source_identity import prepare_v2, verify_inputs
 
 EXPORTER = "longform-export-v1"
 ENCODING = dict(video="libx264", pixel_format="yuv420p", crf=18, preset="fast",
@@ -94,7 +95,7 @@ def read_previous(path, manifest):
     if path.is_symlink():
         raise ValueError("Refusing symlink manifest")
     prior=json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(prior,dict) or prior.get("exporter")!=EXPORTER or prior.get("manifest_version")!=1 or not isinstance(prior.get("source"),dict) or prior["source"].get("sha256")!=manifest["source"]["sha256"] or not isinstance(prior.get("assembly"),dict):
+    if not isinstance(prior,dict) or prior.get("exporter")!=EXPORTER or prior.get("manifest_version")!=manifest["manifest_version"] or not isinstance(prior.get("source"),dict) or prior["source"].get("sha256")!=manifest["source"]["sha256"] or not isinstance(prior.get("assembly"),dict):
         raise ValueError("Existing manifest is unrelated or invalid; refusing replacement")
     if not isinstance(prior.get("plan_signature"),str) or prior["assembly"].get("status") not in ("complete","reused","failed"):
         raise ValueError("Invalid existing assembly identity/status")
@@ -159,12 +160,20 @@ def cached_longform(directory, manifest):
 
 
 def export_longform(video,analysis_path,*,output_root=Path("output"),seconds_before=15,
-                    seconds_after=15,merge_gap=5,dry_run=False,force=False,cache_only=False):
+                    seconds_after=15,merge_gap=5,dry_run=False,force=False,cache_only=False,manifest_version=1):
     if cache_only and (force or dry_run):
         raise ValueError("cache-only conflicts with force and dry-run")
+    if type(manifest_version) is not int or manifest_version not in (1,2):
+        raise ValueError("Unsupported manifest version")
     video,directory,manifest=prepare_plan(video,analysis_path,output_root,seconds_before,seconds_after,merge_gap)
+    if manifest_version == 2:
+        manifest=prepare_v2(video,directory,manifest,output_root,
+                            cache_only=cache_only,dry_run=dry_run,force=force)
     if cache_only:
-        return cached_longform(directory,manifest)
+        result=cached_longform(directory,manifest)
+        if manifest_version == 2:
+            verify_inputs(video,analysis_path,manifest)
+        return result
     if dry_run:
         return directory,manifest
     output=directory/"longform_v1.mp4"
@@ -230,6 +239,8 @@ def export_longform(video,analysis_path,*,output_root=Path("output"),seconds_bef
                     raise ValueError("Source changed during assembly")
                 if hashlib.sha256(Path(analysis_path).read_bytes()).hexdigest()!=manifest["shared_analysis"]["sha256"]:
                     raise ValueError("Analysis changed during assembly")
+                if manifest_version == 2:
+                    verify_inputs(video,analysis_path,manifest)
                 new_hash=media_sha256(combined)
                 if force and output.exists():
                     if output.is_symlink() or media_sha256(output)!=old_hash:
@@ -260,13 +271,14 @@ def main(argv=None):
     parser.add_argument("--dry-run",action="store_true")
     parser.add_argument("--force",action="store_true")
     parser.add_argument("--cache-only",action="store_true")
+    parser.add_argument("--manifest-version",type=int,choices=(1,2),default=1)
     args=parser.parse_args(argv)
     if args.cache_only and (args.force or args.dry_run):
         parser.error("--cache-only conflicts with --force and --dry-run")
     try:
         directory,manifest=export_longform(args.video,args.analysis,output_root=args.output_root,
             seconds_before=args.seconds_before,seconds_after=args.seconds_after,merge_gap=args.merge_gap,
-            dry_run=args.dry_run,force=args.force,cache_only=args.cache_only)
+            dry_run=args.dry_run,force=args.force,cache_only=args.cache_only,manifest_version=args.manifest_version)
     except (ValueError,OSError,subprocess.SubprocessError) as exc:
         parser.exit(1,f"Long-form export failed: {exc}\n")
     print(f"Preselected {manifest['planning']['selection_provenance']['detector']} anchors: "

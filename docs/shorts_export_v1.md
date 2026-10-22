@@ -126,3 +126,10 @@ provided: a disappearing artifact causes failure, never encoding. Avoid concurre
 writers during verification; these checks cannot prevent another process from
 changing a file after the final read. Stream metadata checks are not a full
 decode or perceptual playback assessment.
+
+## Portable manifest opt-in
+
+`--manifest-version 2` enables isolated fresh creation or strict cache-only
+reuse with verified source-content identity. V1 remains the default. See
+[CLI usage and restrictions](pipeline_cli_v1.md#opt-in-portable-manifest-v2).
+Existing artifacts are never automatically converted.

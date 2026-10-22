@@ -83,22 +83,32 @@ class SourceIdentityContractTests(unittest.TestCase):
             case.check_both(error="Cache-only stale manifest: manifest_version|Existing manifest is unrelated or invalid; refusing replacement")
 
 
-@unittest.skip("DESIGN ONLY: manifest v2/source_identity v1 reader and migration are not implemented")
 class FuturePortableIdentityContractTests(unittest.TestCase):
     def test_v2_same_digest_size_and_metadata_allows_new_locator(self):
-        """Permit relocation only after all criteria in the design pass."""
-        self.fail("Implement against the future production V2 reader before enabling")
+        from test_portable_manifests import fixture
+        with fixture() as f:
+            f.relocate()
+            f.check()
 
     def test_v2_missing_digest_never_falls_back_to_name_size_or_time(self):
-        """Unknown identity fails closed; no on-the-fly upgrade."""
-        self.fail("Implement against the future production V2 reader before enabling")
+        from test_portable_manifests import fixture
+        with fixture() as f:
+            for path in f.manifests():
+                data = json.loads(path.read_text())
+                del data["source_identity"]["digest"]
+                path.write_text(json.dumps(data))
+            with f.read_only():
+                for exporter in (shorts.export_shorts, relocation.longform.export_longform):
+                    with self.assertRaisesRegex(ValueError, "identity fields"):
+                        exporter(f.video,f.analysis,output_root=f.output,manifest_version=2,cache_only=True)
 
     def test_v2_cache_only_never_writes_or_migrates(self):
-        """V2 readers must retain the existing strict no-write guarantee."""
-        self.fail("Implement against the future production V2 reader before enabling")
+        from test_portable_manifests import fixture
+        with fixture() as f:
+            f.check()
 
+    @unittest.skip("Migration/bundle activation is deferred; V2 creation is isolated only")
     def test_migration_bundle_failure_preserves_v1_and_no_partial_activation(self):
-        """Publication must not leave a mixed pair of active manifests."""
         self.fail("Implement against the future migration transaction before enabling")
 
 

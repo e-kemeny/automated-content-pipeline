@@ -1,6 +1,11 @@
-# Source identity migration plan (design only)
+# Source identity migration plan
 
-No migration utility or V2 reader exists. Preserve current exports and research.
+Implementation status (2026-10-22): explicit V2 readers and isolated fresh V2
+writers now exist in both exporters. Shared Analysis remains schema 1. No
+migration utility, pair activation or rollback transaction is implemented.
+Preserve existing production exports and research. Steps 1-3 below are the
+original rollout plan; canonical signatures and the three supported deferred
+contract cases are now implemented. Step 4 onward remains future work.
 
 1. Freeze the contract in portable_source_identity_v1.md and review unresolved
    signature, activation and stable-read decisions before coding. Maintain
@@ -36,8 +41,10 @@ No migration utility or V2 reader exists. Preserve current exports and research.
    cannot read V2: retain an explicit way to select V1 rather than overwriting it.
    Staged or failed bundles remain inactive; cleanup requires a separate action.
 
-Unresolved before implementation: exact signature canonicalization and version
-domain, bundle/activation naming and discovery, filesystem atomicity/durability,
-stable source hashing/probing under concurrent access, and renamed-stem lookup.
+Remaining unresolved: bundle/activation naming and discovery, filesystem
+transaction durability, stable source hashing/probing under concurrent access,
+and renamed-stem lookup. Canonical signature rules and best-effort stable-read
+checks are documented in portable_source_identity_v1.md. New V2 creation is
+restricted to isolated empty destinations; it does not convert existing artifacts.
 Default to rejecting ambiguity. Model environments and dependency consolidation
 are independent milestones. No success criterion requires relaxing legacy safety.

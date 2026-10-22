@@ -49,3 +49,23 @@ provided: a disappearing artifact causes failure, never encoding. Avoid concurre
 writers during verification; these checks cannot prevent another process from
 changing a file after the final read. Stream metadata checks are not a full
 decode or perceptual playback assessment.
+
+## Opt-in portable manifest V2
+
+Legacy manifest V1 remains the default; no artifacts are automatically migrated.
+For a **new, isolated export**, use:
+
+```powershell
+python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --manifest-version 2 --output-root portable_exports --dry-run
+python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --manifest-version 2 --output-root portable_exports
+python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --manifest-version 2 --output-root portable_exports --cache-only
+```
+
+Creation encodes new clips and requires an empty exporter destination outside
+`output/`; V2 rejects `--force`. Reuse requires `--cache-only`, which remains
+strictly read-only and validates full source content, analysis, plan and outputs.
+Both individual exporters accept the same version/output-root flags. Source
+relocation is permitted only with identical verified bytes and metadata; keep
+its filename stem for existing output discovery. Copy analysis unchanged.
+There is no migration, pair activation, concurrent-writer coordination or repair.
+See [the identity contract](portable_source_identity_v1.md) for signature details.

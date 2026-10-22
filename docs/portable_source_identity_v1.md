@@ -1,8 +1,9 @@
 # Portable Source Identity V1: design and compatibility contract
 
-Status: DESIGN ONLY, 2026-10-21. No production reader, schema, cache rule or
-migration changes. V1 in this title is the design iteration; the proposed
-wire format uses manifest_version 2 with source_identity.version 1.
+Status: V2 manifest implementation, 2026-10-22. V1 in this title names the
+original design iteration. Explicit V2 creation and cache-only reading now exist;
+migration and atomic pair activation remain deferred. Existing production
+artifacts remain V1 and unchanged.
 
 ## Current evidence and behavior
 
@@ -20,12 +21,12 @@ file must still be read and hashed during verification; trusting a copied digest
 string alone proves nothing. No new production-video hashing is added here.
 
 Current export planning compares actual source hash/duration against analysis.
-Strict cache-only compares the entire manifest source record, including path.
+Legacy V1 cache-only compares the entire manifest source record, including path.
 Both manifest versions require source identity, unchanged raw analysis hash,
 matching selection/plan/encoding, successful records and intact playable outputs.
 See artifact_relocation_audit.md for exact current errors and path behavior.
 
-## Proposed manifest fragment (not an implemented schema)
+## Implemented V2 identity fragment
 
     {
       "manifest_version": 2,
@@ -48,6 +49,9 @@ See artifact_relocation_audit.md for exact current errors and path behavior.
 
 Angle-bracket values are illustrative placeholders, not valid artifact values.
 Other existing manifest fields retain their evidence and policy meanings.
+The existing source record is retained as a compatibility view: its sha256 and
+media fields must agree with source_identity; source.path is informational in V2.
+source_location.recorded_path also preserves the historical locator.
 There is no new Shared Analysis schema in this design: existing schema-1 analysis
 bytes remain unchanged, including source_video.path and source_video.sha256.
 
@@ -92,7 +96,7 @@ remain untouched and are interpreted only by their V1 reader.
 
 ## Compatibility and failure rules
 
-| Input | Proposed future behavior |
+| Input | Compatibility behavior |
 |---|---|
 | Legacy manifest version 1 | Existing strict reader and path binding, unchanged; no automatic upgrade |
 | Version 2 / identity version 1 | Apply the full gate above; only locator differences may be accepted |
@@ -105,7 +109,9 @@ remain untouched and are interpreted only by their V1 reader.
 
 A compatibility reader cannot silently reinterpret V1 as V2. Opt-in migration
 creates new artifacts on copies; legacy export behavior remains available.
-Current code rejects version 2: skipped tests are specifications, not support claims.
+Version 2 must be explicitly selected; default version 1 never reinterprets it.
+Three deferred contract tests now execute; atomic migration failure/rollback
+remains skipped because no migration utility exists.
 
 ## Migration integrity and recovery
 
@@ -129,8 +135,12 @@ in-place reverse rewrite or automatic deletion of evidence.
 Hash in bounded chunks; full hashing is O(file size) I/O and can be expensive.
 Reuse one validated digest within a stable explicit operation only after designing
 race safeguards; do not add a persistent size/mtime-only digest cache or sampled
-hash shortcut. This milestone adds no production execution or hashing path.
-Required V2 size can be measured during the same read as a later migration digest.
+hash shortcut. V2 hashes source bytes in 1 MiB chunks and counts bytes during
+that read. It compares device/inode, size, mtime_ns and ctime_ns before/after
+hashing, and rechecks source/analysis before publication or cache-only return.
+This is best-effort mutation detection, not a filesystem snapshot or lock. V2
+currently repeats hashes (including per-clip publication checks); large sources
+incur extra I/O. V1 hashing behavior is unchanged.
 
 Hashes provide integrity relative to a trustworthy record, not authentication:
 an attacker able to replace both media and manifests can replace their digests.
@@ -140,6 +150,43 @@ network/OneDrive semantics and hash/probe time-of-check gaps still require care.
 Probe metadata can differ across tools; conservatively reject rather than assume
 equivalence. No new lock or transaction implementation is claimed.
 
-Open implementation decisions: exact V2 signature serialization, activation bundle
-layout/reader selection, stable-read safeguards and Windows durability guarantees,
-and discovery of renamed sources. Until resolved, use the conservative V1 policy.
+## Canonical signature and opt-in behavior
+
+source_identity.py serializes signature inputs with Python json.dumps:
+sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False,
+then UTF-8 and full SHA-256. This is a Python JSON contract, not RFC 8785;
+1 and 1.0 remain distinct representations. Domain: gameplay-export-plan-v2.
+
+Signed inputs are exporter identity, complete source_identity, shared-analysis
+schema_version and raw sha256, and encoding. Shorts additionally signs selection
+and each clip's candidate_timestamp, start, end, duration, ranking_score,
+ranking_score_key, candidate_evidence and output_filename. Long-form signs its
+complete planning record. Existing exporter identifiers retain their v1 suffix:
+that suffix names export policy, not manifest version.
+
+Runtime source/analysis/output paths, status, verification timings and encoded-file
+hashes are excluded from the plan signature. Output hashes, statuses, filenames,
+stream metadata and durations are still separately checked by existing validators.
+Historical selection provenance remains signed verbatim. A mismatching or
+self-inconsistent stored signature is rejected.
+
+Both exporters and pipeline.py accept --manifest-version 2. Default is 1.
+New V2 creation requires --output-root outside the default output tree and an
+empty exporter destination, rejects --force, and never adopts existing files.
+This intentionally permits fresh isolated exports only, not migration or repair.
+Use --cache-only --manifest-version 2 to reuse them, including after relocation.
+Normal V2 reruns reject a nonempty destination; cache-only is the reuse path.
+Dry-run validates and previews without writing. Existing conflicting flag rules
+remain unchanged. Unified CLI forwards --output-root to both exporters.
+
+Existing exclusive publication stages a complete JSON file and links it into its
+absent destination; MP4 publication follows existing exclusive behavior. Failed
+exports cannot satisfy successful-cache validation. A failed publication can leave
+orphan MP4s requiring manual review or a fresh destination; no automatic repair.
+Each exporter publishes independently. This is NOT atomic pair activation,
+crash-durable transaction support or coordinated cross-process access. Do not run
+concurrent writers. Existing outputs are never replaced by V2 creation.
+
+Remaining decisions: migration bundle/activation layout, locking and Windows
+power-loss durability, and discovery of renamed source stems. Keep production
+V1 artifacts intact until a separate migration milestone implements these.

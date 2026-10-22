@@ -82,3 +82,14 @@ Next: resolve signature/activation/stable-read details, then implement a read-on
 versioned compatibility reader with fixtures. An opt-in atomic migration on copies
 comes later. See [identity contract](portable_source_identity_v1.md) and
 [migration plan](source_identity_migration_plan.md). Do not rewrite existing paths.
+
+## Implemented V2 option (2026-10-22)
+
+Both exporters now support explicit manifest V2 and content-verified relocated
+cache reuse. V1 defaults and production artifacts remain unchanged. Fresh V2
+exports require isolated empty destinations; reuse uses --cache-only and never
+rewrites files. No migration or pair activation exists. The next milestone is an
+opt-in dry-run migration design with one atomic activation boundary and failure
+recovery on copies, before touching production artifacts. See the updated
+[identity contract](portable_source_identity_v1.md). Second-machine verification
+and renamed-source-stem discovery remain unverified/deferred.

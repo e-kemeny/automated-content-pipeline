@@ -14,6 +14,8 @@ def main(argv=None):
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--cache-only", action="store_true")
+    parser.add_argument("--manifest-version", type=int, choices=(1,2))
+    parser.add_argument("--output-root", type=Path)
     args = parser.parse_args(argv)
     if args.cache_only and (args.force or args.dry_run):
         parser.error("--cache-only conflicts with --force and --dry-run")
@@ -26,6 +28,11 @@ def main(argv=None):
 
     if args.cache_only:
         forwarded.append("--cache-only")
+
+    if args.manifest_version is not None:
+        forwarded += ["--manifest-version", str(args.manifest_version)]
+    if args.output_root is not None:
+        forwarded += ["--output-root", str(args.output_root)]
 
     outcomes = []
     for mode, label, exporter in (
