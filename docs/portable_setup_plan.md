@@ -93,3 +93,10 @@ opt-in dry-run migration design with one atomic activation boundary and failure
 recovery on copies, before touching production artifacts. See the updated
 [identity contract](portable_source_identity_v1.md). Second-machine verification
 and renamed-source-stem discovery remain unverified/deferred.
+
+## Export-only relocation smoke test
+
+Run `python -B -S portability_smoke.py` for disposable synthetic V2 exports and
+strict read-only relocation checks. No production media is used. See
+[second-Windows-machine setup](second_windows_export_v1.md) for commands, verified
+local scope and unverified desktop compatibility.

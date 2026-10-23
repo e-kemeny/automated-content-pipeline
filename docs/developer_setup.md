@@ -80,3 +80,10 @@ See [Verification V1](verification_v1.md) for prerequisites and failure behavior
 Run with the intended environment's interpreter. These read-only metadata checks
 do not load models or prove GPU compatibility. See [environment matrix](environment_matrix.md)
 and [portable setup plan](portable_setup_plan.md) for boundaries and known gaps.
+
+## Export-only relocation smoke test
+
+Run `python -B -S portability_smoke.py` for disposable synthetic V2 exports and
+strict read-only relocation checks. No production media is used. See
+[second-Windows-machine setup](second_windows_export_v1.md) for commands, verified
+local scope and unverified desktop compatibility.
