@@ -115,3 +115,12 @@ experimental signals distinct from selection inputs.
 Details: [unified CLI](docs/pipeline_cli_v1.md),
 [shared schema](docs/shared_analysis_architecture.md),
 [repository audit and cleanup plan](docs/repository_audit.md).
+
+## Windows export-only setup
+
+Run `./setup.ps1 -CheckOnly`, then `./setup.ps1` to approve local `.venv`
+creation and synthetic verification. `-SkipSmokeTest` skips functional smoke testing.
+The export profile needs no third-party Python packages; missing system tools
+receive guided installation instructions. No ML dependencies are installed.
+See [Windows installer V1](docs/windows_installer_v1.md) for requirements,
+approval behavior, reruns and known limitations.

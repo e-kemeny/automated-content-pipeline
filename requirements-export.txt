@@ -1,0 +1,4 @@
+# Export-only runtime: no third-party Python packages required.
+# Audited pipeline/export/schema/probe dependency closure; standard library only.
+# System prerequisites: 64-bit Python 3.14 (verified family), FFmpeg and FFprobe.
+# Optional ML/plotting requirements are intentionally excluded.
