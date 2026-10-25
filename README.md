@@ -118,9 +118,11 @@ Details: [unified CLI](docs/pipeline_cli_v1.md),
 
 ## Windows export-only setup
 
-Run `./setup.ps1 -CheckOnly`, then `./setup.ps1` to approve local `.venv`
-creation and synthetic verification. `-SkipSmokeTest` skips functional smoke testing.
-The export profile needs no third-party Python packages; missing system tools
-receive guided installation instructions. No ML dependencies are installed.
-See [Windows installer V1](docs/windows_installer_v1.md) for requirements,
-approval behavior, reruns and known limitations.
+Run `./setup.ps1 -CheckOnly`, then `./setup.ps1 -InstallMissing` to enable
+approval-gated WinGet installation of missing Python 3.14 x64 and FFmpeg/FFprobe.
+The flag is not consent: exact commands are shown before a separate approval.
+Default `./setup.ps1` keeps guided system setup. `-SkipSmokeTest` skips functional
+smoke testing; diagnostics still run. PATH is never refreshed automatically.
+The export profile needs no third-party Python packages or ML dependencies.
+See [Windows installer V2](docs/windows_installer_v2.md) for bootstrap, approvals,
+restart/recovery behavior and unverified second-machine installation limits.

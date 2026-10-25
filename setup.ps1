@@ -1,6 +1,6 @@
 # Export-only setup. Compatible with Windows PowerShell 5.1 and PowerShell 7.
 [CmdletBinding()]
-param([switch]$CheckOnly, [switch]$SkipSmokeTest)
+param([switch]$CheckOnly, [switch]$SkipSmokeTest, [switch]$InstallMissing)
 
 function Invoke-SetupTool {
     param([string]$File, [string[]]$Arguments)
@@ -17,13 +17,13 @@ function Test-SetupPlatform {
 
 function Get-SetupPython {
     param([string]$File, [string[]]$Prefix = @())
-    $probe = 'import json,sys; print(json.dumps(dict(executable=sys.executable, version=list(sys.version_info[:2]), bits=64 if sys.maxsize>2**32 else 32, prefix=sys.prefix, base_prefix=sys.base_prefix)))'
+    $probe = 'import json,sys,sysconfig; print(json.dumps(dict(platform=sysconfig.get_platform(), executable=sys.executable, version=list(sys.version_info[:2]), bits=64 if sys.maxsize>2**32 else 32, prefix=sys.prefix, base_prefix=sys.base_prefix)))'
     $result = Invoke-SetupTool $File ($Prefix + @('-I','-B','-S','-c',$probe))
     if ($result.Code -ne 0) { return $null }
     try { $info = $result.Text | ConvertFrom-Json } catch { return $null }
     # Use the locally verified interpreter family, not an untested minimum claim.
     if ($info.version.Count -ne 2 -or $info.version[0] -ne 3 -or
-        $info.version[1] -ne 14 -or $info.bits -ne 64) { return $null }
+        $info.version[1] -ne 14 -or $info.bits -ne 64 -or $info.platform -ne 'win-amd64') { return $null }
     return $info
 }
 
@@ -62,10 +62,93 @@ function New-SetupEnvironment {
     if ($result.Code -ne 0) { throw "venv creation failed: $($result.Text)" }
 }
 
+
+function Get-SetupMissing {
+    param($Python)
+    if ($null -eq $Python) { '64-bit Python 3.14' }
+    foreach ($tool in @('ffmpeg','ffprobe')) {
+        if (-not (Test-SetupExecutable $tool)) { $tool }
+    }
+}
+
+function Get-SetupInstallPlan {
+    param([string[]]$Missing)
+    # IDs verified against microsoft/winget-pkgs; see docs/windows_installer_v2.md.
+    if ($Missing -contains '64-bit Python 3.14') {
+        @{ Id = 'Python.Python.3.14'; Publisher = 'Python Software Foundation' }
+    }
+    if ($Missing -contains 'ffmpeg' -or $Missing -contains 'ffprobe') {
+        @{ Id = 'Gyan.FFmpeg'; Publisher = 'Gyan (Gyan Doshi)' }
+    }
+}
+
+function Get-SetupInstallArguments {
+    param([string]$Id)
+    if ($Id -notin @('Python.Python.3.14','Gyan.FFmpeg')) { throw 'Unapproved package ID' }
+    return @('install','--id',$Id,'--exact','--source','winget','--architecture','x64',
+             '--scope','user','--no-upgrade','--interactive')
+}
+
+function Find-SetupWinGet {
+    $command = Get-Command winget -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($command) { return $command.Source }
+    return $null
+}
+
+function Confirm-SetupSystemInstall {
+    return ((Read-Host 'Type YES to approve ONLY the displayed WinGet installations (additional license prompts may follow)') -ceq 'YES')
+}
+
+function Invoke-SetupInstallCommand {
+    param([string]$File, [string[]]$Arguments)
+    # Stream output: source/package agreement prompts must remain visible.
+    # No --accept-*-agreements, forced elevation, silent installs or PATH refresh.
+    try {
+        & $File @Arguments | Out-Host
+        return $LASTEXITCODE
+    } catch {
+        Write-Host $_.Exception.Message
+        return 1
+    }
+}
+
+function Install-SetupMissing {
+    param([string[]]$Missing)
+    $winget = Find-SetupWinGet
+    if (-not $winget) { throw 'WinGet unavailable; install trusted Python/FFmpeg manually (docs/windows_installer_v2.md), reopen PowerShell and rerun CheckOnly' }
+    $plan = @(Get-SetupInstallPlan $Missing)
+    foreach ($item in $plan) {
+        $arguments = Get-SetupInstallArguments $item.Id
+        Write-Host "PLAN: $($item.Id); publisher: $($item.Publisher)"
+        Write-Host ('COMMAND: "' + $winget + '" ' + ($arguments -join ' '))
+    }
+    Write-Host 'User-scope only. WinGet/package installers may add USER PATH entries; setup never edits or refreshes PATH.'
+    Write-Host 'No upgrades, uninstalls, automatic agreement acceptance or reboots. Missing tools may already be installed but absent from this session PATH.'
+    if (-not (Confirm-SetupSystemInstall)) { throw 'System installation declined; WinGet was not invoked' }
+    foreach ($item in $plan) {
+        $code = Invoke-SetupInstallCommand $winget (Get-SetupInstallArguments $item.Id)
+        if ($code -ne 0) {
+            throw "WinGet failed/interrupted for $($item.Id) (exit $code). Earlier installations may remain. Review WinGet output; restart if requested, then rerun CheckOnly. No automatic retry or rollback."
+        }
+        if ($item.Id -eq 'Python.Python.3.14') {
+            $available = $null -ne (Find-SetupPython)
+        } else {
+            $ffmpeg = Test-SetupExecutable 'ffmpeg'
+            $ffprobe = Test-SetupExecutable 'ffprobe'
+            $available = $ffmpeg -and $ffprobe
+        }
+        if (-not $available) {
+            throw "WinGet returned success for $($item.Id), but verification failed in this session. Open a NEW PowerShell and rerun CheckOnly; PATH was not refreshed. Review installed version/architecture or PATH if still missing. Remaining plan not executed."
+        }
+        Write-Host "PASS: $($item.Id) available after installation"
+    }
+}
+
 function Invoke-Setup {
-    param([string]$Root, [switch]$CheckOnly, [switch]$SkipSmokeTest)
+    param([string]$Root, [switch]$CheckOnly, [switch]$SkipSmokeTest, [switch]$InstallMissing)
     $ErrorActionPreference = 'Stop'
     try {
+        if ($CheckOnly -and $InstallMissing) { throw '-CheckOnly conflicts with -InstallMissing; no actions performed' }
         if (-not (Test-SetupPlatform)) { throw 'Requires Windows and PowerShell 5.1 or newer' }
         $Root = [IO.Path]::GetFullPath($Root)
         $profile = Join-Path $Root 'requirements-export.txt'
@@ -87,17 +170,19 @@ function Invoke-Setup {
                 throw 'Existing .venv is incomplete/incompatible (requires 64-bit Python 3.14). Preserved; review it manually, then rerun. No automatic repair.'
             }
         } else { $python = Find-SetupPython }
-        $missing = @()
-        if ($null -eq $python) { $missing += '64-bit Python 3.14' }
-        foreach ($tool in @('ffmpeg','ffprobe')) {
-            if (-not (Test-SetupExecutable $tool)) { $missing += $tool }
-        }
+        $missing = @(Get-SetupMissing $python)
         if ($missing.Count) {
             Write-Host ('PLAN: missing or unusable system requirements: ' + ($missing -join ', '))
-            Write-Host 'Guided installation only: use your established Windows package manager (for example WinGet) or trusted official installers.'
-            Write-Host 'Choose 64-bit Python 3.14 and an FFmpeg build including FFprobe, libx264 and AAC. Review publisher, package and any elevation/PATH prompt yourself.'
-            Write-Host 'No system installation or PATH change was performed. After approved installation, open a NEW PowerShell and rerun setup.ps1 -CheckOnly.'
-            throw 'System prerequisites unavailable; see docs/windows_installer_v1.md'
+            if ($InstallMissing) {
+                Install-SetupMissing $missing
+                if (-not $exists) { $python = Find-SetupPython }
+                $missing = @(Get-SetupMissing $python)
+                if ($missing.Count) { throw ('Prerequisites still unavailable: ' + ($missing -join ', ')) }
+            } else {
+                Write-Host 'No system installation or PATH change performed. Use -InstallMissing for approved WinGet installation, or install trusted Python 3.14 x64 and FFmpeg/FFprobe manually.'
+                Write-Host 'After installation, open a NEW PowerShell and rerun setup.ps1 -CheckOnly.'
+                throw 'System prerequisites unavailable; see docs/windows_installer_v2.md'
+            }
         }
         Write-Host "PASS: Python $($python.executable) (64-bit 3.14)"
         if ($exists) { Write-Host 'PLAN: reuse existing .venv; no installation or upgrades' }
@@ -143,5 +228,5 @@ function Invoke-Setup {
 }
 
 if ($MyInvocation.InvocationName -ne '.') {
-    exit (Invoke-Setup -Root $PSScriptRoot -CheckOnly:$CheckOnly -SkipSmokeTest:$SkipSmokeTest)
+    exit (Invoke-Setup -Root $PSScriptRoot -CheckOnly:$CheckOnly -SkipSmokeTest:$SkipSmokeTest -InstallMissing:$InstallMissing)
 }

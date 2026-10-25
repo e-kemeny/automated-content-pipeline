@@ -1,0 +1,7 @@
+# Incremental text policy: normalize only milestone-touched files.
+# Extend this list when other existing files are deliberately edited.
+setup.ps1 text eol=lf
+test_windows_installer.py text eol=lf
+README.md text eol=lf
+docs/windows_installer_v*.md text eol=lf
+# No catch-all text rule: binary/media files retain their existing attributes.

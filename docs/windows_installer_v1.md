@@ -1,5 +1,8 @@
 # Windows dependency installer V1
 
+Historical V1 behavior. [V2](windows_installer_v2.md) adds explicit
+`-InstallMissing`; default and CheckOnly retain the safe V1 workflow.
+
 `setup.ps1` prepares the export-only workflow. It resolves paths relative to its
 own file and can be called from another working directory. It does not modify
 export logic, saved analysis, media or research artifacts.
