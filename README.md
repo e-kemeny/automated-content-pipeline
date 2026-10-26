@@ -126,3 +126,10 @@ smoke testing; diagnostics still run. PATH is never refreshed automatically.
 The export profile needs no third-party Python packages or ML dependencies.
 See [Windows installer V2](docs/windows_installer_v2.md) for bootstrap, approvals,
 restart/recovery behavior and unverified second-machine installation limits.
+
+## GPU environment diagnostics
+
+Run `python -B -S gpu_check.py` for read-only NVIDIA hardware, driver and memory
+metadata. CUDA runtime, PyTorch CUDA and actual inference remain unverified.
+See [GPU environment V1](docs/gpu_environment_v1.md) for laptop/desktop scope
+and future RTX 4090 validation steps. No models or drivers are installed.
