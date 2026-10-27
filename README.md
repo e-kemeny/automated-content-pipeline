@@ -133,3 +133,8 @@ Run `python -B -S gpu_check.py` for read-only NVIDIA hardware, driver and memory
 metadata. CUDA runtime, PyTorch CUDA and actual inference remain unverified.
 See [GPU environment V1](docs/gpu_environment_v1.md) for laptop/desktop scope
 and future RTX 4090 validation steps. No models or drivers are installed.
+
+Optional PyTorch runtime diagnostics: `python gpu_runtime_check.py --check-only`
+queries devices without tensor execution; the default command verifies tiny CUDA
+arithmetic. See [GPU runtime verification V1](docs/gpu_runtime_verification_v1.md).
+This is separate from exports and does not install dependencies or run models.
