@@ -138,3 +138,11 @@ Optional PyTorch runtime diagnostics: `python gpu_runtime_check.py --check-only`
 queries devices without tensor execution; the default command verifies tiny CUDA
 arithmetic. See [GPU runtime verification V1](docs/gpu_runtime_verification_v1.md).
 This is separate from exports and does not install dependencies or run models.
+
+## RTX 4090 deployment verification
+
+The desktop passed basic CUDA arithmetic in its separate GPU environment; actual
+ML inference, model compatibility and performance remain unverified.
+Run `python deployment_check.py` for detection, or add `--execute-cuda` to opt
+into the tiny execution check, using the intended environment's interpreter.
+See [verified RTX 4090 configuration and workflow](docs/rtx4090_deployment_v1.md).
