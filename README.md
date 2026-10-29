@@ -146,3 +146,12 @@ ML inference, model compatibility and performance remain unverified.
 Run `python deployment_check.py` for detection, or add `--execute-cuda` to opt
 into the tiny execution check, using the intended environment's interpreter.
 See [verified RTX 4090 configuration and workflow](docs/rtx4090_deployment_v1.md).
+
+## Experimental GPU vision inference
+
+Optional vision_inference.py --video videos/my_recording.mp4 runs pretrained
+ResNet-18 on temporary sampled frames in a CUDA environment. Weights must already
+be cached unless --allow-model-download is supplied. This is an ImageNet
+classification experiment, not production video understanding or highlight scoring.
+See [GPU vision inference V1](docs/gpu_vision_inference_v1.md) for desktop commands,
+output safety and interpretation limits.
