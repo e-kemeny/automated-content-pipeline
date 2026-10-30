@@ -27,12 +27,13 @@ or fresh multimodal ranking. Export does not reconstruct missing evidence.
 Shorts can consume an explicitly declared compatible complete pool, but that is
 not what this artifact contains; Long-form V1 uses preselected anchors.
 
-**Shorts currently means horizontal highlight MP4s**, retaining the source aspect
-ratio, with fixed [-10,+5] second context. Long-form expands anchors by 15 seconds
+**Shorts defaults to horizontal highlight MP4s**, retaining the source aspect
+ratio, with fixed [-10,+5] second context. Optional vertical center cropping is
+available through export_shorts.py --format vertical. Long-form expands anchors by 15 seconds
 on each side, merges gaps up to 5 seconds, and assembles chronological footage.
 This is a baseline assembly policy, not a validated narrative editor.
 
-Not implemented: vertical reframing, subtitles, music, publishing, a GUI, or
+Not implemented: intelligent reframing, subtitles, music, publishing, a GUI, or
 semantic/language-driven selection and validated narrative editing.
 
 ## Experimental Evaluation
@@ -155,3 +156,11 @@ be cached unless --allow-model-download is supplied. This is an ImageNet
 classification experiment, not production video understanding or highlight scoring.
 See [GPU vision inference V1](docs/gpu_vision_inference_v1.md) for desktop commands,
 output safety and interpretation limits.
+
+## Optional vertical Shorts
+
+    python export_shorts.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --format vertical
+
+Produces 1080x1920 center-cropped H.264/AAC clips. Selection and timing stay unchanged;
+vertical outputs use a separate cache directory. Horizontal export remains default.
+See [vertical Shorts V1](docs/vertical_shorts_v1.md) for cache rules and crop limitations.

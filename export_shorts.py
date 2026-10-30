@@ -19,6 +19,23 @@ from windows import build_candidate_windows
 from source_identity import prepare_v2, validate_manifest_identity, verify_inputs
 
 EXPORTER = "shorts-export-v1"
+VERTICAL_FILTER = ("scale=iw*sar:ih,setsar=1,"
+                   "scale=1080:1920:force_original_aspect_ratio=increase:force_divisible_by=2,"
+                   "crop=1080:1920:(iw-ow)/2:(ih-oh)/2,setsar=1")
+
+
+def verify_vertical(path, manifest):
+    """Extra format check only for vertical exports; legacy probe results stay unchanged."""
+    if manifest["encoding"].get("format") != "vertical":
+        return
+    streams = probe_format_streams(path)["streams"]
+    video = next((s for s in streams if s.get("codec_type") == "video"), {})
+    audio = next((s for s in streams if s.get("codec_type") == "audio"), {})
+    if (video.get("width"), video.get("height"), video.get("codec_name"),
+            video.get("sample_aspect_ratio"), audio.get("codec_name")) != (
+            1080, 1920, "h264", "1:1", "aac"):
+        raise ValueError("Vertical cache/export must be 1080x1920 square-pixel H.264 with AAC")
+
 
 
 def select_windows(analysis, top_k):
@@ -95,7 +112,9 @@ def verify_duration(probe, requested_duration):
     return error
 
 
-def plan_export(video, analysis_path, top_k=5, output_root=Path("output")):
+def plan_export(video, analysis_path, top_k=5, output_root=Path("output"), export_format="horizontal"):
+    if export_format not in ("horizontal", "vertical"):
+        raise ValueError("Unsupported Shorts format")
     video = require_media(video)
     analysis_path = Path(analysis_path)
     analysis = load_analysis(analysis_path)
@@ -111,7 +130,7 @@ def plan_export(video, analysis_path, top_k=5, output_root=Path("output")):
         raise ValueError("Source identity mismatch")
     windows, policy = select_windows(analysis, top_k)
     root = Path(output_root).resolve()
-    directory = (root/video.stem/"shorts").resolve()
+    directory = (root/video.stem/("shorts_vertical" if export_format == "vertical" else "shorts")).resolve()
     if not directory.is_relative_to(root) or directory == root:
         raise ValueError("Unsafe output directory")
     entries = []
@@ -129,6 +148,9 @@ def plan_export(video, analysis_path, top_k=5, output_root=Path("output")):
             sha256=hashlib.sha256(analysis_path.read_bytes()).hexdigest()),
         selection=policy, encoding=dict(video="libx264",audio="aac",crf=18,preset="fast"),
         clips=entries)
+    if export_format == "vertical":
+        manifest["encoding"].update(format="vertical", width=1080, height=1920,
+                                    video_filter=VERTICAL_FILTER)
     return video, directory, manifest
 
 
@@ -141,6 +163,10 @@ def previous_manifest(directory, manifest):
     prior = json.loads(path.read_text(encoding="utf-8"))
     if prior.get("exporter") != EXPORTER or prior.get("manifest_version") != manifest["manifest_version"] or prior.get("source",{}).get("sha256") != manifest["source"]["sha256"]:
         raise ValueError("Existing manifest is unrelated; refusing replacement")
+    if (manifest["encoding"].get("format") == "vertical" or
+            prior.get("encoding", {}).get("format") == "vertical"):
+        if prior.get("encoding") != manifest["encoding"]:
+            raise ValueError("Existing manifest has a different Shorts format/encoding")
     if not isinstance(prior.get("clips"),list) or any(not isinstance(row,dict) or not isinstance(row.get("output_filename"),str) for row in prior["clips"]):
         raise ValueError("Invalid existing manifest clip records")
     return {row["output_filename"]:row for row in prior["clips"]}
@@ -197,6 +223,7 @@ def cached_shorts(directory, manifest):
             raise ValueError("Cache-only stale clip evidence or boundaries")
         verified, error = validate_cached_file(directory/row["output_filename"],
                                                old.get("output_sha256"), row["duration"])
+        verify_vertical(directory/row["output_filename"], manifest)
         row.update(status="reused", verification=verified, duration_error_seconds=error,
                    output_sha256=old["output_sha256"])
     if path.is_symlink() or path.read_bytes() != original:
@@ -204,12 +231,12 @@ def cached_shorts(directory, manifest):
     return directory, manifest
 
 
-def export_shorts(video, analysis_path, *, top_k=5, output_root=Path("output"), dry_run=False, force=False, cache_only=False, manifest_version=1):
+def export_shorts(video, analysis_path, *, top_k=5, output_root=Path("output"), dry_run=False, force=False, cache_only=False, manifest_version=1, export_format="horizontal"):
     if cache_only and (force or dry_run):
         raise ValueError("cache-only conflicts with force and dry-run")
     if type(manifest_version) is not int or manifest_version not in (1,2):
         raise ValueError("Unsupported manifest version")
-    video, directory, manifest = plan_export(video, analysis_path, top_k, output_root)
+    video, directory, manifest = plan_export(video, analysis_path, top_k, output_root, export_format)
     if manifest_version == 2:
         manifest = prepare_v2(video, directory, manifest, output_root,
                               cache_only=cache_only, dry_run=dry_run, force=force)
@@ -238,6 +265,7 @@ def export_shorts(video, analysis_path, *, top_k=5, output_root=Path("output"), 
         if target.exists() and not force:
             try:
                 row["verification"] = probe_clip(target)
+                verify_vertical(target, manifest)
                 row["duration_error_seconds"] = verify_duration(row["verification"],row["duration"])
                 row["output_sha256"] = media_sha256(target)
                 row["status"] = "reused"
@@ -249,12 +277,14 @@ def export_shorts(video, analysis_path, *, top_k=5, output_root=Path("output"), 
             with tempfile.NamedTemporaryFile(dir=directory,prefix=".shorts_",suffix=".mp4",delete=False) as handle:
                 temporary = Path(handle.name)
             # Re-encode after accurate input seeking; both streams retain common timing.
+            filters = ["-vf", manifest["encoding"]["video_filter"]] if export_format == "vertical" else []
             subprocess.run(["ffmpeg","-v","error","-nostdin","-y","-ss",str(row["start"]),
-                "-i",str(video),"-t",str(row["duration"]),"-map","0:v:0","-map","0:a:0",
+                "-i",str(video),"-t",str(row["duration"]),"-map","0:v:0","-map","0:a:0", *filters,
                 "-c:v","libx264","-preset","fast","-crf","18","-pix_fmt","yuv420p",
                 "-c:a","aac","-b:a","192k","-movflags","+faststart",str(temporary)],
                 check=True,capture_output=True,text=True)
             row["verification"] = probe_clip(temporary)
+            verify_vertical(temporary, manifest)
             row["duration_error_seconds"] = verify_duration(row["verification"],row["duration"])
             row["output_sha256"] = media_sha256(temporary)
             if manifest_version == 2:
@@ -296,6 +326,8 @@ def main(argv=None):
     parser.add_argument("video",type=Path)
     parser.add_argument("--analysis",type=Path,required=True)
     parser.add_argument("--top-k",type=int,default=5)
+    parser.add_argument("--format", dest="export_format", choices=("horizontal", "vertical"),
+                        default="horizontal")
     parser.add_argument("--output-root",type=Path,default=Path("output"))
     parser.add_argument("--dry-run",action="store_true")
     parser.add_argument("--force",action="store_true")
@@ -306,7 +338,7 @@ def main(argv=None):
         parser.error("--cache-only conflicts with --force and --dry-run")
     try:
         directory,manifest=export_shorts(args.video,args.analysis,top_k=args.top_k,
-            output_root=args.output_root,dry_run=args.dry_run,force=args.force,cache_only=args.cache_only,manifest_version=args.manifest_version)
+            output_root=args.output_root,dry_run=args.dry_run,force=args.force,cache_only=args.cache_only,manifest_version=args.manifest_version,export_format=args.export_format)
     except (ValueError,OSError,subprocess.SubprocessError) as exc:
         parser.exit(1,f"Shorts export failed: {exc}\n")
     print(f"{manifest['selection']['mode']} ({manifest['selection']['detector']}); {directory}")
