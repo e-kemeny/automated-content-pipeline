@@ -13,7 +13,19 @@ The existing positional video and required analysis arguments are retained:
     python export_shorts.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --format vertical --cache-only
 
 Use --format horizontal (or omit --format) for the original behavior. The unified
-pipeline.py CLI remains unchanged and exports the default horizontal format.
+pipeline.py CLI now delegates the same option to Shorts only:
+
+    python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --mode shorts --format horizontal
+    python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --mode shorts --format vertical
+    python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --mode both --format vertical
+    python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --mode shorts --format vertical --cache-only
+
+In both mode, Long-form arguments and behavior remain unchanged. Longform-only
+with --format vertical is rejected before any export. Default format is horizontal.
+Existing --dry-run, --force, --cache-only, --manifest-version and --output-root
+are forwarded as before; cache-only conflicts still apply. Both mode reports
+independent outcomes and returns nonzero if either exporter fails. No cache
+fallback, repair, migration or inference is added by the unified CLI.
 The saved artifact still supplies five preselected Audio-only anchors, not fresh
 multimodal ranking. Other existing --top-k/provenance restrictions remain intact.
 

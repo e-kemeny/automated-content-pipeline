@@ -159,8 +159,13 @@ output safety and interpretation limits.
 
 ## Optional vertical Shorts
 
-    python export_shorts.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --format vertical
+    python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --mode shorts --format horizontal
+    python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --mode shorts --format vertical
+    python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --mode both --format vertical
+    python pipeline.py videos/my_recording.mp4 --analysis output/shared_analysis_v1.json --mode shorts --format vertical --cache-only
 
-Produces 1080x1920 center-cropped H.264/AAC clips. Selection and timing stay unchanged;
+Vertical mode produces 1080x1920 center-cropped H.264/AAC clips. Selection and timing stay unchanged;
 vertical outputs use a separate cache directory. Horizontal export remains default.
+In both mode, format affects only Shorts. Longform-only rejects vertical format;
+cache-only never generates missing outputs.
 See [vertical Shorts V1](docs/vertical_shorts_v1.md) for cache rules and crop limitations.

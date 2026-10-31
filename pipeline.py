@@ -11,6 +11,8 @@ def main(argv=None):
     parser.add_argument("video", type=Path)
     parser.add_argument("--analysis", type=Path, required=True)
     parser.add_argument("--mode", choices=("shorts", "longform", "both"), default="both")
+    parser.add_argument("--format", choices=("horizontal", "vertical"), default="horizontal",
+                        help="Shorts format only; horizontal by default")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--cache-only", action="store_true")
@@ -19,6 +21,9 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.cache_only and (args.force or args.dry_run):
         parser.error("--cache-only conflicts with --force and --dry-run")
+
+    if args.mode == "longform" and args.format == "vertical":
+        parser.error("--format vertical requires --mode shorts or both")
 
     forwarded = [str(args.video), "--analysis", str(args.analysis)]
     if args.dry_run:
@@ -43,7 +48,10 @@ def main(argv=None):
             continue
         print(f"--- {label} ---", flush=True)
         try:
-            code = exporter(list(forwarded))
+            exporter_args = list(forwarded)
+            if mode == "shorts" and args.format == "vertical":
+                exporter_args += ["--format", "vertical"]
+            code = exporter(exporter_args)
         except SystemExit as exc:
             # Exporter CLIs use argparse.exit for validation/runtime errors.
             code = exc.code
