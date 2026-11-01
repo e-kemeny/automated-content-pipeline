@@ -169,3 +169,13 @@ vertical outputs use a separate cache directory. Horizontal export remains defau
 In both mode, format affects only Shorts. Longform-only rejects vertical format;
 cache-only never generates missing outputs.
 See [vertical Shorts V1](docs/vertical_shorts_v1.md) for cache rules and crop limitations.
+
+## Multimodal observation timeline
+
+    python multimodal_timeline.py --analysis output/shared_analysis_v1.json
+
+The standalone data layer aligns saved audio, scene, transcript and optional
+ResNet frame observations in video time. It preserves payloads and provenance;
+it performs no inference, multimodal reasoning or highlight ranking.
+See [multimodal timeline V1](docs/multimodal_timeline_v1.md) for supported schemas,
+identity safeguards and optional --transcript/--vision inputs.
