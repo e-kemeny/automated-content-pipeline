@@ -179,3 +179,11 @@ ResNet frame observations in video time. It preserves payloads and provenance;
 it performs no inference, multimodal reasoning or highlight ranking.
 See [multimodal timeline V1](docs/multimodal_timeline_v1.md) for supported schemas,
 identity safeguards and optional --transcript/--vision inputs.
+
+### Query existing timeline observations
+
+Run the following for compact JSON evidence retrieval:
+
+    python timeline_query.py --timeline output/multimodal_timeline_v1.json --start 45 --end 60
+
+Optional modality filtering and atomic file output are described in [Timeline Query V1](docs/timeline_query_v1.md). Queries preserve observations and provenance; they perform no inference or ranking.
