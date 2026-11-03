@@ -187,3 +187,9 @@ Run the following for compact JSON evidence retrieval:
     python timeline_query.py --timeline output/multimodal_timeline_v1.json --start 45 --end 60
 
 Optional modality filtering and atomic file output are described in [Timeline Query V1](docs/timeline_query_v1.md). Queries preserve observations and provenance; they perform no inference or ranking.
+
+### Inspect evidence for saved candidates
+
+    python candidate_evidence.py --candidates output/shared_analysis_v1.json --timeline output/multimodal_timeline_v1.json
+
+[Candidate Evidence V1](docs/candidate_evidence_v1.md) retrieves observations for persisted windows, preserving scores and provenance without ranking or inference. Reports distinguish missing signals from empty window matches; temporal coverage remains unknown.
