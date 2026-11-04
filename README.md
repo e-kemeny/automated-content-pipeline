@@ -193,3 +193,9 @@ Optional modality filtering and atomic file output are described in [Timeline Qu
     python candidate_evidence.py --candidates output/shared_analysis_v1.json --timeline output/multimodal_timeline_v1.json
 
 [Candidate Evidence V1](docs/candidate_evidence_v1.md) retrieves observations for persisted windows, preserving scores and provenance without ranking or inference. Reports distinguish missing signals from empty window matches; temporal coverage remains unknown.
+
+### Read a candidate evidence report
+
+    python inspect_candidate_evidence.py --evidence output/candidate_evidence_v1.json
+
+[Candidate Evidence Inspection V1](docs/candidate_evidence_inspection_v1.md) displays original windows/scores, modality counts, coverage limitations, and bounded transcript/model-prediction previews. Use --format json for structured stdout. It performs no ranking, inference, or file writes.
