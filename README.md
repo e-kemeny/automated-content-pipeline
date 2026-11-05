@@ -199,3 +199,9 @@ Optional modality filtering and atomic file output are described in [Timeline Qu
     python inspect_candidate_evidence.py --evidence output/candidate_evidence_v1.json
 
 [Candidate Evidence Inspection V1](docs/candidate_evidence_inspection_v1.md) displays original windows/scores, modality counts, coverage limitations, and bounded transcript/model-prediction previews. Use --format json for structured stdout. It performs no ranking, inference, or file writes.
+
+### Recover sparse cached audio/scene evidence
+
+    python recover_timeline_evidence.py --dynamic-v2 output/dynamic_window_v2.json
+
+[Evidence recovery V1](docs/audio_scene_evidence_recovery_v1.md) retrieves selected audio rows and retained scene references without reanalysis. These incomplete, repeated records have unverified source identity and cannot be merged with separate transcript artifacts under current identity rules.
