@@ -205,3 +205,9 @@ Optional modality filtering and atomic file output are described in [Timeline Qu
     python recover_timeline_evidence.py --dynamic-v2 output/dynamic_window_v2.json
 
 [Evidence recovery V1](docs/audio_scene_evidence_recovery_v1.md) retrieves selected audio rows and retained scene references without reanalysis. These incomplete, repeated records have unverified source identity and cannot be merged with separate transcript artifacts under current identity rules.
+
+### Persist full detector outputs (opt-in new analysis)
+
+    python observation_persistence.py --video videos/my_recording.mp4 --output output/full_observations_v1.json
+
+[Full Observation Persistence V1](docs/full_observation_persistence_v1.md) saves actual audio amplitudes/scores and sparse scene events with source content identity. This explicitly processes the video; saved artifacts can later normalize into timelines without reanalysis. Default exports are unchanged.

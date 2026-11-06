@@ -85,7 +85,7 @@ def extract_audio(video_path):
     else:
         print("Error extracting audio")
 
-def analyze_video_motion(video_path):
+def analyze_video_motion(video_path, *, check=False):
     command = [
         "ffmpeg",
         "-y",
@@ -100,6 +100,9 @@ def analyze_video_motion(video_path):
         capture_output=True,
         text=True
     )
+
+    if check:
+        result.check_returncode()
 
     # scene_changes = []
     # for line in result.stderr.splitlines():
@@ -133,7 +136,7 @@ def analyze_video_motion(video_path):
     print(sorted_scene_changes[:5])
     return sorted_scene_changes
 
-def analyze_audio(audio_path):
+def analyze_audio(audio_path, *, observation_sink=None):
     with wave.open(str(audio_path), "rb") as audio:
         channels = audio.getnchannels()
         sample_rate = audio.getframerate()
@@ -152,6 +155,11 @@ def analyze_audio(audio_path):
                 "second": second,
                 "volume": average_volume
             })
+
+        if observation_sink is not None:
+            observation_sink(dict(volumes=[dict(row) for row in volumes],
+                                  sample_rate=sample_rate, channels=channels,
+                                  sample_count=len(samples)))
 
         spikes = []
         for i in range(5, len(volumes)):
