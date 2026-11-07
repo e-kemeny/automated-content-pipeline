@@ -211,3 +211,9 @@ Optional modality filtering and atomic file output are described in [Timeline Qu
     python observation_persistence.py --video videos/my_recording.mp4 --output output/full_observations_v1.json
 
 [Full Observation Persistence V1](docs/full_observation_persistence_v1.md) saves actual audio amplitudes/scores and sparse scene events with source content identity. This explicitly processes the video; saved artifacts can later normalize into timelines without reanalysis. Default exports are unchanged.
+
+### Experimental human-rating evaluation
+
+    python highlight_evaluation.py template --analysis output/shared_analysis_v1.json --output output/highlight_ratings_v1.json
+
+[Highlight Evaluation V1](docs/highlight_evaluation_v1.md) creates unrated templates and evaluates manually entered 1–5 ratings with descriptive summaries, explicit ties, and conditional pairwise score agreement. It does not change production ranking or process video.
