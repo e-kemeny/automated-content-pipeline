@@ -217,3 +217,9 @@ Optional modality filtering and atomic file output are described in [Timeline Qu
     python highlight_evaluation.py template --analysis output/shared_analysis_v1.json --output output/highlight_ratings_v1.json
 
 [Highlight Evaluation V1](docs/highlight_evaluation_v1.md) creates unrated templates and evaluates manually entered 1–5 ratings with descriptive summaries, explicit ties, and conditional pairwise score agreement. It does not change production ranking or process video.
+
+### Experimental clip-boundary comparison
+
+    python clip_boundary_experiment.py plan --analysis output/shared_analysis_v1.json --video videos/my_recording.mp4 --output output/clip_boundary_plan_v1.json
+
+[Clip Boundary Evaluation V1](docs/clip_boundary_experiment_v1.md) proposes fixed earlier/later offsets, optionally exports isolated variants, and compares explicit human reviews. Planning verifies source identity/duration without encoding; production ranking and exports remain unchanged. These are heuristic boundaries, not semantic detection.
