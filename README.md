@@ -223,3 +223,9 @@ Optional modality filtering and atomic file output are described in [Timeline Qu
     python clip_boundary_experiment.py plan --analysis output/shared_analysis_v1.json --video videos/my_recording.mp4 --output output/clip_boundary_plan_v1.json
 
 [Clip Boundary Evaluation V1](docs/clip_boundary_experiment_v1.md) proposes fixed earlier/later offsets, optionally exports isolated variants, and compares explicit human reviews. Planning verifies source identity/duration without encoding; production ranking and exports remain unchanged. These are heuristic boundaries, not semantic detection.
+
+### Human gameplay-event annotations
+
+    python gameplay_events.py template --analysis output/shared_analysis_v1.json --output output/gameplay_events_template_v1.json
+
+[Gameplay Event Ground Truth V1](docs/gameplay_events_v1.md) creates empty human annotation templates, distinguishes precise times from clip-level uncertainty, and supports read-only event queries and optional timeline alignment. It performs no gameplay detection or scoring; existing models and audio/scene evidence are not treated as reliable BedWars event recognizers.
