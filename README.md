@@ -229,3 +229,9 @@ Optional modality filtering and atomic file output are described in [Timeline Qu
     python gameplay_events.py template --analysis output/shared_analysis_v1.json --output output/gameplay_events_template_v1.json
 
 [Gameplay Event Ground Truth V1](docs/gameplay_events_v1.md) creates empty human annotation templates, distinguishes precise times from clip-level uncertainty, and supports read-only event queries and optional timeline alignment. It performs no gameplay detection or scoring; existing models and audio/scene evidence are not treated as reliable BedWars event recognizers.
+
+### Experimental transcript event hypotheses
+
+    python transcript_event_recognition.py --timeline output/multimodal_timeline_v1.json --output output/transcript_event_hypotheses_v1.json
+
+[Transcript Gameplay Event Recognition V1](docs/transcript_event_recognition_v1.md) applies narrow deterministic phrases and exclusion guards to saved speech. Results preserve utterance timing and explicit event-time uncertainty; they are not visual detections or human ground truth. The 19-segment saved-transcript smoke test yielded zero completed-event hypotheses and four excluded matches.
