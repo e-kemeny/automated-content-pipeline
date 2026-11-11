@@ -1,0 +1,15 @@
+{
+  "game_id": "generic",
+  "profile_version": 1,
+  "regions": [
+    {
+      "height": 1,
+      "name": "full_frame",
+      "width": 1,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "schema_version": 1,
+  "ui_hints": {}
+}

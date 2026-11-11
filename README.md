@@ -235,3 +235,9 @@ Optional modality filtering and atomic file output are described in [Timeline Qu
     python transcript_event_recognition.py --timeline output/multimodal_timeline_v1.json --output output/transcript_event_hypotheses_v1.json
 
 [Transcript Gameplay Event Recognition V1](docs/transcript_event_recognition_v1.md) applies narrow deterministic phrases and exclusion guards to saved speech. Results preserve utterance timing and explicit event-time uncertainty; they are not visual detections or human ground truth. The 19-segment saved-transcript smoke test yielded zero completed-event hypotheses and four excluded matches.
+
+### Game-agnostic visual evidence
+
+    python visual_evidence.py --video videos/my_recording.mp4 --output-root output/visual_evidence_v1
+
+[Visual Evidence Extraction V1](docs/visual_evidence_v1.md) explicitly samples real PNG frames on CPU with measured normalized PTS and content identity. Optional JSON profiles and crops prepare evidence for future OCR/vision; unknown games use generic extraction. This performs no OCR, game identification or event classification and does not alter production exports.
