@@ -241,3 +241,10 @@ Optional modality filtering and atomic file output are described in [Timeline Qu
     python visual_evidence.py --video videos/my_recording.mp4 --output-root output/visual_evidence_v1
 
 [Visual Evidence Extraction V1](docs/visual_evidence_v1.md) explicitly samples real PNG frames on CPU with measured normalized PTS and content identity. Optional JSON profiles and crops prepare evidence for future OCR/vision; unknown games use generic extraction. This performs no OCR, game identification or event classification and does not alter production exports.
+
+### Optional OCR over saved visual evidence
+
+    python ocr_visual_evidence.py --check-backend
+    python ocr_visual_evidence.py --manifest output/visual_evidence_v1/visual_evidence_manifest.json --output output/ocr_visual_evidence_v1.json --mode both
+
+[OCR Visual Evidence V1](docs/ocr_visual_evidence_v1.md) validates saved frame/crop hashes and produces separate text observations through an optional Tesseract subprocess backend. Missing OCR is explicitly unavailable, never empty-text success. No OCR engine was found on the development laptop; real recognition remains unverified. No gameplay-event classification is performed.
