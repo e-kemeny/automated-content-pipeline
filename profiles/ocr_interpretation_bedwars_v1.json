@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "name": "bedwars",
+  "patterns": [
+    {
+      "id": "victory",
+      "event_type": "victory",
+      "phrase": "victory"
+    },
+    {
+      "id": "defeat",
+      "event_type": "death",
+      "phrase": "you died"
+    },
+    {
+      "id": "elimination",
+      "event_type": "kill",
+      "phrase": "eliminated"
+    },
+    {
+      "id": "objective",
+      "event_type": "objective",
+      "phrase": "objective completed"
+    },
+    {
+      "id": "bed_destroyed",
+      "event_type": "objective",
+      "phrase": "bed destroyed"
+    },
+    {
+      "id": "final_kill",
+      "event_type": "kill",
+      "phrase": "final kill"
+    }
+  ]
+}
