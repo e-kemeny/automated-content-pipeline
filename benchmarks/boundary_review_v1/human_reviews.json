@@ -1,0 +1,242 @@
+[
+  {
+    "candidate_index": 0,
+    "ends": "too_early",
+    "notes": "This is the worst; the clip stopped mid-fight.",
+    "ratings": {
+      "action_completeness": 3,
+      "overall_watchability": 3,
+      "pacing": 5
+    },
+    "starts": "too_late",
+    "variant": "original"
+  },
+  {
+    "candidate_index": 0,
+    "ends": "too_early",
+    "notes": "More of the fight was cut out at the end.",
+    "ratings": {
+      "action_completeness": 4,
+      "overall_watchability": 4,
+      "pacing": 5
+    },
+    "starts": "too_late",
+    "variant": "earlier"
+  },
+  {
+    "candidate_index": 0,
+    "ends": "too_early",
+    "notes": "Better than both and earlier.",
+    "ratings": {
+      "action_completeness": 4,
+      "overall_watchability": 5,
+      "pacing": 5
+    },
+    "starts": "too_late",
+    "variant": "later"
+  },
+  {
+    "candidate_index": 0,
+    "ends": "too_early",
+    "notes": "The intro was cut out and it is unclear who won the final fight.",
+    "ratings": {
+      "action_completeness": 4,
+      "overall_watchability": 4,
+      "pacing": 5
+    },
+    "starts": "too_late",
+    "variant": "both"
+  },
+  {
+    "candidate_index": 1,
+    "ends": "too_early",
+    "notes": "Fight scenes on both ends were cut too soon.",
+    "ratings": {
+      "action_completeness": 4,
+      "overall_watchability": 4,
+      "pacing": 5
+    },
+    "starts": "too_late",
+    "variant": "original"
+  },
+  {
+    "candidate_index": 1,
+    "ends": "too_early",
+    "notes": "The last fight was cut off mid-fight.",
+    "ratings": {
+      "action_completeness": 4,
+      "overall_watchability": 4,
+      "pacing": 5
+    },
+    "starts": "appropriate",
+    "variant": "earlier"
+  },
+  {
+    "candidate_index": 1,
+    "ends": "too_late",
+    "notes": "Death screen shown too long; beginning starts mid-fight.",
+    "ratings": {
+      "action_completeness": 4,
+      "overall_watchability": 4,
+      "pacing": 5
+    },
+    "starts": "too_late",
+    "variant": "later"
+  },
+  {
+    "candidate_index": 1,
+    "ends": "appropriate",
+    "notes": "Several fights; all started and ended at justifiable times.",
+    "ratings": {
+      "action_completeness": 5,
+      "overall_watchability": 5,
+      "pacing": 5
+    },
+    "starts": "appropriate",
+    "variant": "both"
+  },
+  {
+    "candidate_index": 2,
+    "ends": "appropriate",
+    "notes": "Start of fight cut off, but victory was shown sufficiently.",
+    "ratings": {
+      "action_completeness": 4,
+      "overall_watchability": 4,
+      "pacing": 5
+    },
+    "starts": "too_late",
+    "variant": "original"
+  },
+  {
+    "candidate_index": 2,
+    "ends": "too_early",
+    "notes": "Victory screen flashed; need to show payoff.",
+    "ratings": {
+      "action_completeness": 4,
+      "overall_watchability": 4,
+      "pacing": 5
+    },
+    "starts": "appropriate",
+    "variant": "earlier"
+  },
+  {
+    "candidate_index": 2,
+    "ends": "too_late",
+    "notes": "Fight cut at beginning; ending includes start of another game.",
+    "ratings": {
+      "action_completeness": 3,
+      "overall_watchability": 3,
+      "pacing": 3
+    },
+    "starts": "too_late",
+    "variant": "later"
+  },
+  {
+    "candidate_index": 2,
+    "ends": "too_late",
+    "notes": "Victory and then new game appear; should cut after victory and use next game's start for another clip.",
+    "ratings": {
+      "action_completeness": 3,
+      "overall_watchability": 4,
+      "pacing": 4
+    },
+    "starts": "too_late",
+    "variant": "both"
+  },
+  {
+    "candidate_index": 3,
+    "ends": "appropriate",
+    "notes": "Much better than the rest.",
+    "ratings": {
+      "action_completeness": 5,
+      "overall_watchability": 5,
+      "pacing": 5
+    },
+    "starts": "appropriate",
+    "variant": "original"
+  },
+  {
+    "candidate_index": 3,
+    "ends": "appropriate",
+    "notes": "Too much inactivity at beginning, though an invisible enemy is present. End cuts at an okay time; next clip should capture the next event.",
+    "ratings": {
+      "action_completeness": 4,
+      "overall_watchability": 4,
+      "pacing": 4
+    },
+    "starts": "too_early",
+    "variant": "earlier"
+  },
+  {
+    "candidate_index": 3,
+    "ends": "too_early",
+    "notes": "Perfect beginning, but end cuts fight too soon.",
+    "ratings": {
+      "action_completeness": 4,
+      "overall_watchability": 4,
+      "pacing": 4
+    },
+    "starts": "appropriate",
+    "variant": "later"
+  },
+  {
+    "candidate_index": 3,
+    "ends": "too_early",
+    "notes": "Started too early; fight ending should be shown.",
+    "ratings": {
+      "action_completeness": 3,
+      "overall_watchability": 3,
+      "pacing": 3
+    },
+    "starts": "too_early",
+    "variant": "both"
+  },
+  {
+    "candidate_index": 4,
+    "ends": "too_early",
+    "notes": "Almost perfect, but unclear what enemy did at end: jumped with TNT over my head.",
+    "ratings": {
+      "action_completeness": 3,
+      "overall_watchability": 3,
+      "pacing": 4
+    },
+    "starts": "appropriate",
+    "variant": "original"
+  },
+  {
+    "candidate_index": 4,
+    "ends": "too_early",
+    "notes": "Beginning and ending unclear. Source footage is already cut; algorithms may behave better on uncut footage.",
+    "ratings": {
+      "action_completeness": 2,
+      "overall_watchability": 2,
+      "pacing": 3
+    },
+    "starts": "too_early",
+    "variant": "earlier"
+  },
+  {
+    "candidate_index": 4,
+    "ends": "appropriate",
+    "notes": "Perfect: starts at intro animation and ends at the right sword miss.",
+    "ratings": {
+      "action_completeness": 5,
+      "overall_watchability": 5,
+      "pacing": 5
+    },
+    "starts": "appropriate",
+    "variant": "later"
+  },
+  {
+    "candidate_index": 4,
+    "ends": "too_late",
+    "notes": "Beginning includes previous game. Ending okay but could improve; a sword swing may be missed.",
+    "ratings": {
+      "action_completeness": 3,
+      "overall_watchability": 3,
+      "pacing": 4
+    },
+    "starts": "too_early",
+    "variant": "both"
+  }
+]

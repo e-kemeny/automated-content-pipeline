@@ -1,0 +1,269 @@
+
+PROJECT: Automated Content Pipeline
+TASK: Preserve human evaluation benchmark and prepare
+evidence-informed boundary selection research.
+
+REPOSITORY:
+C:\Users\warpe\OneDrive\Desktop\Projects4NVIDIA\automated-content-pipeline-git
+
+NEVER TOUCH:
+C:\Users\warpe\OneDrive\Desktop\Projects4NVIDIA\automated-content-pipeline-backup
+
+LAST CONFIRMED HEAD:
+9dd1cf3
+
+IMPORTANT CONTEXT:
+The user has manually reviewed all 20 experimental
+gameplay clips. These results are real human ratings,
+not AI-generated predictions.
+
+The goal is to automate gaming highlight selection
+for Shorts and long-form content across different games.
+
+Current production selection remains primarily
+audio-driven. Do not modify production ranking,
+selection, export behavior, or retention models.
+
+EXISTING COMPONENTS:
+- main.py: audio and motion analysis
+- shared_analysis.py: shared cached analysis
+- transcription.py: speech transcription
+- multimodal_timeline.py: time-indexed observations
+- transcript_event_recognition.py: speech hypotheses
+- visual_evidence.py: sampled visual observations
+- ocr_visual_evidence.py: optional OCR evidence
+- ocr_evidence_interpretation.py: OCR hypotheses
+- multimodal_event_fusion.py: temporal evidence grouping
+- gameplay_events.py: human event annotations
+- narrative_clip_boundaries.py: experimental planner
+- clip_boundary_experiment.py: fixed boundary variants
+- highlight_evaluation.py: human evaluation tools
+- gameplay_boundary_evaluation.py: paired review workflow
+- export_shorts.py / export_longform.py: exports
+- source_identity.py: video provenance
+
+Some vision/OCR functionality has only synthetic or
+mocked verification. Do not claim actual gameplay
+recognition accuracy without real inference evidence.
+
+DATASET:
+Video: videos/my_recording.mp4
+Analysis: output/shared_analysis_v1.json
+
+Experimental evaluation directory:
+output/boundary_experiment_evaluation_v1
+
+Human-readable clips:
+output/boundary_experiment_evaluation_v1/review_clips
+
+Five candidates, four variants each:
+0: original 30-45, earlier 27-45,
+   later 30-48, both 27-48
+1: original 59-74, earlier 56-74,
+   later 59-77, both 56-77
+2: original 74-89, earlier 71-89,
+   later 74-92, both 71-92
+3: original 136-151, earlier 133-151,
+   later 136-154, both 133-154
+4: original 160-175, earlier 157-175,
+   later 160-178, both 157-178
+
+ALL 20 HUMAN REVIEWS:
+Format:
+candidate | variant | completeness | pacing |
+watchability | start | end | notes
+
+0 | original | 3 | 5 | 3 | too_late | too_early |
+"This is the worst; the clip stopped mid-fight."
+
+0 | earlier | 4 | 5 | 4 | too_late | too_early |
+"More of the fight was cut out at the end."
+
+0 | later | 4 | 5 | 5 | too_late | too_early |
+"Better than both and earlier."
+
+0 | both | 4 | 5 | 4 | too_late | too_early |
+"The intro was cut out and it is unclear who
+won the final fight."
+
+1 | original | 4 | 5 | 4 | too_late | too_early |
+"Fight scenes on both ends were cut too soon."
+
+1 | earlier | 4 | 5 | 4 | appropriate | too_early |
+"The last fight was cut off mid-fight."
+
+1 | later | 4 | 5 | 4 | too_late | too_late |
+"Death screen shown too long; beginning starts
+mid-fight."
+
+1 | both | 5 | 5 | 5 | appropriate | appropriate |
+"Several fights; all started and ended at
+justifiable times."
+
+2 | original | 4 | 5 | 4 | too_late | appropriate |
+"Start of fight cut off, but victory was shown
+sufficiently."
+
+2 | earlier | 4 | 5 | 4 | appropriate | too_early |
+"Victory screen flashed; need to show payoff."
+
+2 | later | 3 | 3 | 3 | too_late | too_late |
+"Fight cut at beginning; ending includes start
+of another game."
+
+2 | both | 3 | 4 | 4 | too_late | too_late |
+"Victory and then new game appear; should cut
+after victory and use next game's start for
+another clip."
+
+3 | original | 5 | 5 | 5 | appropriate | appropriate |
+"Much better than the rest."
+
+3 | earlier | 4 | 4 | 4 | too_early | appropriate |
+"Too much inactivity at beginning, though an
+invisible enemy is present. End cuts at an okay
+time; next clip should capture the next event."
+
+3 | later | 4 | 4 | 4 | appropriate | too_early |
+"Perfect beginning, but end cuts fight too soon."
+
+3 | both | 3 | 3 | 3 | too_early | too_early |
+"Started too early; fight ending should be shown."
+
+4 | original | 3 | 4 | 3 | appropriate | too_early |
+"Almost perfect, but unclear what enemy did
+at end: jumped with TNT over my head."
+
+4 | earlier | 2 | 3 | 2 | too_early | too_early |
+"Beginning and ending unclear. Source footage
+is already cut; algorithms may behave better
+on uncut footage."
+
+4 | later | 5 | 5 | 5 | appropriate | appropriate |
+"Perfect: starts at intro animation and ends
+at the right sword miss."
+
+4 | both | 3 | 4 | 3 | too_early | too_late |
+"Beginning includes previous game. Ending okay
+but could improve; a sword swing may be missed."
+
+IMPORTANT:
+These notes are faithful summaries of the user's
+original observations, with spelling cleaned up.
+Do not silently reinterpret or relabel them.
+
+HUMAN REVIEW RESULTS:
+All 20 clips fully rated.
+15 original-vs-alternative pairs.
+
+Mean scores (completeness, pacing, watchability):
+Original: 3.8, 4.8, 3.8
+Earlier:  3.6, 4.4, 3.6
+Later:    4.0, 4.4, 4.2
+Both:     3.6, 4.2, 3.8
+
+Paired differences versus original:
+Earlier: -0.2, -0.4, -0.2
+Later:   +0.2, -0.4, +0.4
+Both:    -0.2, -0.6,  0.0
+
+PREFERRED WINDOWS:
+Candidate 0: Later 30-48
+Candidate 1: Both 56-77
+Candidate 2: Original 74-89 (provisional)
+Candidate 3: Original 136-151
+Candidate 4: Later 160-178
+
+CANDIDATE 2 NOTE:
+Original and Earlier tie numerically, but
+Original has the better ending assessment.
+Earlier has a better start. Neither is ideal.
+
+CANDIDATE 0 NOTE:
+Later scores highest for watchability, but
+both its start and end remain inadequate.
+It is the best tested option, NOT a perfect clip.
+
+KEY FINDINGS:
+1. Uniform extension is not reliably beneficial.
+2. Event starts and resolutions matter.
+3. Victory/payoff screens should be preserved.
+4. Avoid including unrelated game transitions.
+5. Preserve original boundaries when already good.
+6. Extra dead time can reduce pacing.
+7. Speech/OCR timestamps do not automatically
+   establish exact gameplay event times.
+8. Some input footage was previously edited.
+9. This is one recording and five candidate
+   families, not a representative dataset.
+10. Do not claim statistical significance or
+    learned generalization from these ratings.
+
+NEXT IMPLEMENTATION:
+Human Boundary Benchmark V1.
+
+FIRST:
+Inspect the existing evaluation plan, export manifest,
+review template/schema, source identity, relevant tests,
+and actual repository status.
+
+DO NOT ASSUME THE SCHEMAS.
+
+IMPLEMENT:
+1. Import all 20 human reviews into the existing
+   evaluation format, preserving original candidate
+   and variant mappings.
+2. Preserve all numeric ratings, start/end assessments,
+   and notes.
+3. Validate against the real saved plan and manifest.
+4. Reject missing, duplicate, or mismatched variants.
+5. Respect existing source identity/provenance rules.
+6. Store the benchmark as a durable, versioned,
+   reproducible research fixture.
+7. Prefer an explicitly named benchmark directory
+   such as benchmarks/boundary_review_v1/.
+8. Do not commit video files or generated exports.
+9. Provide a read-only summary command that reports
+   per-variant averages, paired differences, per-
+   candidate preferred windows, and rating coverage.
+10. Keep the human preference labels separate from
+    raw numeric ratings.
+11. Preserve the original observations and include
+    a note that cleaned summaries are paraphrases.
+12. Do not invent new ratings, events, or timestamps.
+13. Ensure deterministic output and tests.
+14. No new dependencies or model downloads.
+15. No production behavior changes.
+
+VALIDATION:
+- Check all 20 reviews
+- Check all 15 paired comparisons
+- Verify means and differences above
+- Check candidate and variant mappings
+- Test missing and malformed reviews
+- Test source identity conflicts
+- Run focused tests and full suite
+- Run four motion checks
+- Run cached-export integrity verification
+- Confirm production hashes/mtimes unchanged
+
+REPORT:
+- Files changed
+- Benchmark location
+- Full validation results
+- Recomputed summary
+- Git status
+- Limitations
+
+DO NOT COMMIT OR PUSH AUTOMATICALLY.
+
+STOP after implementing and verifying this
+single focused milestone.
+
+FUTURE WORK, NOT PART OF THIS COMMIT:
+- Evidence-informed boundary candidate scoring
+- Real visual/gameplay event recognition
+- Detection of game transitions and event endings
+- Evaluation on longer, uncut recordings
+- Testing on multiple games
+- Automatic integration into production exports

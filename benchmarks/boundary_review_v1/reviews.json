@@ -1,0 +1,247 @@
+{
+  "artifact_type": "gameplay-boundary-reviews",
+  "clips": [
+    {
+      "clip_id": "865d62828e5c9c511c1fe8edc5f3a5470cf14bde1c191fc597a9ed9797a57338",
+      "ends": "too_early",
+      "notes": "This is the worst; the clip stopped mid-fight.",
+      "output_filename": "clip_865d62828e5c9c511c1fe8edc5f3a5470cf14bde1c191fc597a9ed9797a57338.mp4",
+      "ratings": {
+        "action_completeness": 3,
+        "overall_watchability": 3,
+        "pacing": 5
+      },
+      "starts": "too_late"
+    },
+    {
+      "clip_id": "e6353d907e778044e1d1925610ca84831337cf8cd7bf4d8aebe97c3d941fc9a7",
+      "ends": "too_early",
+      "notes": "More of the fight was cut out at the end.",
+      "output_filename": "clip_e6353d907e778044e1d1925610ca84831337cf8cd7bf4d8aebe97c3d941fc9a7.mp4",
+      "ratings": {
+        "action_completeness": 4,
+        "overall_watchability": 4,
+        "pacing": 5
+      },
+      "starts": "too_late"
+    },
+    {
+      "clip_id": "c3d02761e0435bf4d2727f8e50983251152f5638ae2b08082b857464c326d35d",
+      "ends": "too_early",
+      "notes": "Better than both and earlier.",
+      "output_filename": "clip_c3d02761e0435bf4d2727f8e50983251152f5638ae2b08082b857464c326d35d.mp4",
+      "ratings": {
+        "action_completeness": 4,
+        "overall_watchability": 5,
+        "pacing": 5
+      },
+      "starts": "too_late"
+    },
+    {
+      "clip_id": "a73b972f042c279e9559b372f25235bc94ac1e6ff48dc8c0fcb875b0a1543312",
+      "ends": "too_early",
+      "notes": "The intro was cut out and it is unclear who won the final fight.",
+      "output_filename": "clip_a73b972f042c279e9559b372f25235bc94ac1e6ff48dc8c0fcb875b0a1543312.mp4",
+      "ratings": {
+        "action_completeness": 4,
+        "overall_watchability": 4,
+        "pacing": 5
+      },
+      "starts": "too_late"
+    },
+    {
+      "clip_id": "160de29497fe07fae577f1efe448d5eb135c96dd2ec59df5e73cea023e4c60a7",
+      "ends": "too_early",
+      "notes": "Fight scenes on both ends were cut too soon.",
+      "output_filename": "clip_160de29497fe07fae577f1efe448d5eb135c96dd2ec59df5e73cea023e4c60a7.mp4",
+      "ratings": {
+        "action_completeness": 4,
+        "overall_watchability": 4,
+        "pacing": 5
+      },
+      "starts": "too_late"
+    },
+    {
+      "clip_id": "33b5b55c3391978a989de23f66ef5b49a99e5c033d6d36617dedcb4e89a10a42",
+      "ends": "too_early",
+      "notes": "The last fight was cut off mid-fight.",
+      "output_filename": "clip_33b5b55c3391978a989de23f66ef5b49a99e5c033d6d36617dedcb4e89a10a42.mp4",
+      "ratings": {
+        "action_completeness": 4,
+        "overall_watchability": 4,
+        "pacing": 5
+      },
+      "starts": "appropriate"
+    },
+    {
+      "clip_id": "1068ba1c44704e3479bd7b297361351be0e26340e7c00005114ee9d86c42b528",
+      "ends": "too_late",
+      "notes": "Death screen shown too long; beginning starts mid-fight.",
+      "output_filename": "clip_1068ba1c44704e3479bd7b297361351be0e26340e7c00005114ee9d86c42b528.mp4",
+      "ratings": {
+        "action_completeness": 4,
+        "overall_watchability": 4,
+        "pacing": 5
+      },
+      "starts": "too_late"
+    },
+    {
+      "clip_id": "628f82d789019b576a11861e782b71ca5937ccfee59c3835b7ebf16d417c5b28",
+      "ends": "appropriate",
+      "notes": "Several fights; all started and ended at justifiable times.",
+      "output_filename": "clip_628f82d789019b576a11861e782b71ca5937ccfee59c3835b7ebf16d417c5b28.mp4",
+      "ratings": {
+        "action_completeness": 5,
+        "overall_watchability": 5,
+        "pacing": 5
+      },
+      "starts": "appropriate"
+    },
+    {
+      "clip_id": "b95b034fc9666eefef54e0e2ff0136fb1fc4457087cf0a44438c297d3ef8eb53",
+      "ends": "appropriate",
+      "notes": "Start of fight cut off, but victory was shown sufficiently.",
+      "output_filename": "clip_b95b034fc9666eefef54e0e2ff0136fb1fc4457087cf0a44438c297d3ef8eb53.mp4",
+      "ratings": {
+        "action_completeness": 4,
+        "overall_watchability": 4,
+        "pacing": 5
+      },
+      "starts": "too_late"
+    },
+    {
+      "clip_id": "3f6779586f5db32973ed265312548f37567ad9f5dd36351fb2d8da4126775525",
+      "ends": "too_early",
+      "notes": "Victory screen flashed; need to show payoff.",
+      "output_filename": "clip_3f6779586f5db32973ed265312548f37567ad9f5dd36351fb2d8da4126775525.mp4",
+      "ratings": {
+        "action_completeness": 4,
+        "overall_watchability": 4,
+        "pacing": 5
+      },
+      "starts": "appropriate"
+    },
+    {
+      "clip_id": "54995ee0777c1afe16124d007d7189d4bbe51685b677cbd66b77ce26caacca79",
+      "ends": "too_late",
+      "notes": "Fight cut at beginning; ending includes start of another game.",
+      "output_filename": "clip_54995ee0777c1afe16124d007d7189d4bbe51685b677cbd66b77ce26caacca79.mp4",
+      "ratings": {
+        "action_completeness": 3,
+        "overall_watchability": 3,
+        "pacing": 3
+      },
+      "starts": "too_late"
+    },
+    {
+      "clip_id": "3da9d1fe3287f6dd10e7a5d681e2c8bf230cc8846d3a5c07f425594674e7d6a4",
+      "ends": "too_late",
+      "notes": "Victory and then new game appear; should cut after victory and use next game's start for another clip.",
+      "output_filename": "clip_3da9d1fe3287f6dd10e7a5d681e2c8bf230cc8846d3a5c07f425594674e7d6a4.mp4",
+      "ratings": {
+        "action_completeness": 3,
+        "overall_watchability": 4,
+        "pacing": 4
+      },
+      "starts": "too_late"
+    },
+    {
+      "clip_id": "73ed2ee77dd36280b52f7e26ef64c7623d8394d406a49dc924d8ddf6b91e9809",
+      "ends": "appropriate",
+      "notes": "Much better than the rest.",
+      "output_filename": "clip_73ed2ee77dd36280b52f7e26ef64c7623d8394d406a49dc924d8ddf6b91e9809.mp4",
+      "ratings": {
+        "action_completeness": 5,
+        "overall_watchability": 5,
+        "pacing": 5
+      },
+      "starts": "appropriate"
+    },
+    {
+      "clip_id": "5b4070bf480d8066d7c824d98b8218266585ce1ccc5180f5ca32875e603be382",
+      "ends": "appropriate",
+      "notes": "Too much inactivity at beginning, though an invisible enemy is present. End cuts at an okay time; next clip should capture the next event.",
+      "output_filename": "clip_5b4070bf480d8066d7c824d98b8218266585ce1ccc5180f5ca32875e603be382.mp4",
+      "ratings": {
+        "action_completeness": 4,
+        "overall_watchability": 4,
+        "pacing": 4
+      },
+      "starts": "too_early"
+    },
+    {
+      "clip_id": "fa7dda4c8edf69ae4baf5da37dc7e87a04c34dd8b9dd2a1ab7fdc90dc5cc5feb",
+      "ends": "too_early",
+      "notes": "Perfect beginning, but end cuts fight too soon.",
+      "output_filename": "clip_fa7dda4c8edf69ae4baf5da37dc7e87a04c34dd8b9dd2a1ab7fdc90dc5cc5feb.mp4",
+      "ratings": {
+        "action_completeness": 4,
+        "overall_watchability": 4,
+        "pacing": 4
+      },
+      "starts": "appropriate"
+    },
+    {
+      "clip_id": "a7e34da69b45787b6bd7e01e28706ac7785fd8697715633da63fdcf3de2bd744",
+      "ends": "too_early",
+      "notes": "Started too early; fight ending should be shown.",
+      "output_filename": "clip_a7e34da69b45787b6bd7e01e28706ac7785fd8697715633da63fdcf3de2bd744.mp4",
+      "ratings": {
+        "action_completeness": 3,
+        "overall_watchability": 3,
+        "pacing": 3
+      },
+      "starts": "too_early"
+    },
+    {
+      "clip_id": "d36e6dcdef15c070879f08a9e6fbd04c67f9f9fa35c80fa39575e0c534be94b6",
+      "ends": "too_early",
+      "notes": "Almost perfect, but unclear what enemy did at end: jumped with TNT over my head.",
+      "output_filename": "clip_d36e6dcdef15c070879f08a9e6fbd04c67f9f9fa35c80fa39575e0c534be94b6.mp4",
+      "ratings": {
+        "action_completeness": 3,
+        "overall_watchability": 3,
+        "pacing": 4
+      },
+      "starts": "appropriate"
+    },
+    {
+      "clip_id": "b24883493c5bea6fdccaf316ced95e488cd8773eea9ecfef5ad2bde8f0020fb0",
+      "ends": "too_early",
+      "notes": "Beginning and ending unclear. Source footage is already cut; algorithms may behave better on uncut footage.",
+      "output_filename": "clip_b24883493c5bea6fdccaf316ced95e488cd8773eea9ecfef5ad2bde8f0020fb0.mp4",
+      "ratings": {
+        "action_completeness": 2,
+        "overall_watchability": 2,
+        "pacing": 3
+      },
+      "starts": "too_early"
+    },
+    {
+      "clip_id": "551248bc6b44ca1579cfc06b1cf82e27e0df3316c11a716460de86e9e57256bf",
+      "ends": "appropriate",
+      "notes": "Perfect: starts at intro animation and ends at the right sword miss.",
+      "output_filename": "clip_551248bc6b44ca1579cfc06b1cf82e27e0df3316c11a716460de86e9e57256bf.mp4",
+      "ratings": {
+        "action_completeness": 5,
+        "overall_watchability": 5,
+        "pacing": 5
+      },
+      "starts": "appropriate"
+    },
+    {
+      "clip_id": "15c7036db7a8332ac4ccae0bc7dd268281aa384f913c75f41fecea105713d6c4",
+      "ends": "too_late",
+      "notes": "Beginning includes previous game. Ending okay but could improve; a sword swing may be missed.",
+      "output_filename": "clip_15c7036db7a8332ac4ccae0bc7dd268281aa384f913c75f41fecea105713d6c4.mp4",
+      "ratings": {
+        "action_completeness": 3,
+        "overall_watchability": 3,
+        "pacing": 4
+      },
+      "starts": "too_early"
+    }
+  ],
+  "plan_id": "1799a749ae0180e410382d2ad88506893418f2b6056c948392d6f2f7b56f11de",
+  "schema_version": 1
+}

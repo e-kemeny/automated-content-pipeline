@@ -1,0 +1,818 @@
+{
+  "artifact_type": "gameplay-boundary-export",
+  "clips": [
+    {
+      "clip_id": "865d62828e5c9c511c1fe8edc5f3a5470cf14bde1c191fc597a9ed9797a57338",
+      "duration": 15.0,
+      "duration_error_seconds": 0.0,
+      "end": 45.0,
+      "output_filename": "clip_865d62828e5c9c511c1fe8edc5f3a5470cf14bde1c191fc597a9ed9797a57338.mp4",
+      "references": [
+        {
+          "candidate_index": 0,
+          "label": "original",
+          "provenance": {
+            "input": "analysis"
+          },
+          "variant_id": "ac5dc0b99b7f4519d7e166ee3919659be0ce6cc630de683b355b7b4666bec14f"
+        }
+      ],
+      "sha256": "0b1ac9c298e92695857c4cfbdf80e8c5f0cbe4a0f6e9ad4cc6f0a9ac5257fc1c",
+      "start": 30.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 15.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "15.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "15.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "e6353d907e778044e1d1925610ca84831337cf8cd7bf4d8aebe97c3d941fc9a7",
+      "duration": 18.0,
+      "duration_error_seconds": 0.0,
+      "end": 45.0,
+      "output_filename": "clip_e6353d907e778044e1d1925610ca84831337cf8cd7bf4d8aebe97c3d941fc9a7.mp4",
+      "references": [
+        {
+          "candidate_index": 0,
+          "label": "earlier_start",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "f1f2781b68cb1bd0b1932f59a1a76cdc97ecbca9c4031c7f58dc22d817881e17"
+          },
+          "variant_id": "ef5fe75366703dd8fd06a7cb90778d92182d1f3c3b70007fea52c34e5386a5df"
+        }
+      ],
+      "sha256": "c781e2490990c6ac4d56357ca0ca8179b65eaef7ce880ed19f19c12675895ec7",
+      "start": 27.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 18.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "c3d02761e0435bf4d2727f8e50983251152f5638ae2b08082b857464c326d35d",
+      "duration": 18.0,
+      "duration_error_seconds": 0.0,
+      "end": 48.0,
+      "output_filename": "clip_c3d02761e0435bf4d2727f8e50983251152f5638ae2b08082b857464c326d35d.mp4",
+      "references": [
+        {
+          "candidate_index": 0,
+          "label": "later_end",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "30be3a8b91646aa997ba70d31ed2717d38fa64478ac27f263a21639262e779a9"
+          },
+          "variant_id": "75c2a5e7404f737118fd0f90d2b1a8684656d6602b6eda6aae9312b00f1cec91"
+        }
+      ],
+      "sha256": "fd6a3260453f7dd389398368136f1de8cda60fc63f1b39aa4c601015af030810",
+      "start": 30.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 18.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "a73b972f042c279e9559b372f25235bc94ac1e6ff48dc8c0fcb875b0a1543312",
+      "duration": 21.0,
+      "duration_error_seconds": 0.0,
+      "end": 48.0,
+      "output_filename": "clip_a73b972f042c279e9559b372f25235bc94ac1e6ff48dc8c0fcb875b0a1543312.mp4",
+      "references": [
+        {
+          "candidate_index": 0,
+          "label": "both",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "a96794bc620bd439ab3b882a517cf59b9e6e31bac37e9f1e973bbf0913920887"
+          },
+          "variant_id": "ea82d49e8319daaca0fd644f6b9207fb2c0b8b7516a7a8be5a3a71cc599b48b1"
+        }
+      ],
+      "sha256": "9a3190bc74bf40ba6d2828200c3c01bd72c28f2ebda8aebcfb2a5698dadd515e",
+      "start": 27.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 21.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "21.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "21.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "160de29497fe07fae577f1efe448d5eb135c96dd2ec59df5e73cea023e4c60a7",
+      "duration": 15.0,
+      "duration_error_seconds": 0.0,
+      "end": 74.0,
+      "output_filename": "clip_160de29497fe07fae577f1efe448d5eb135c96dd2ec59df5e73cea023e4c60a7.mp4",
+      "references": [
+        {
+          "candidate_index": 1,
+          "label": "original",
+          "provenance": {
+            "input": "analysis"
+          },
+          "variant_id": "08e02a69a225982a9cc889e5c5453049d2318f819c6f6d37f625d272c2b6e3b7"
+        }
+      ],
+      "sha256": "d6cda95cf2902cd07c46b791b04e4594768b28452c5641b882e10a4d7535362a",
+      "start": 59.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 15.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "15.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "15.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "33b5b55c3391978a989de23f66ef5b49a99e5c033d6d36617dedcb4e89a10a42",
+      "duration": 18.0,
+      "duration_error_seconds": 0.0,
+      "end": 74.0,
+      "output_filename": "clip_33b5b55c3391978a989de23f66ef5b49a99e5c033d6d36617dedcb4e89a10a42.mp4",
+      "references": [
+        {
+          "candidate_index": 1,
+          "label": "earlier_start",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "e49c01b1213c8e5507767e6913f3eadcd95b09f5d7f8fef30df3d90b7c928b94"
+          },
+          "variant_id": "db5ef0dc5c48dddb3e4608622fd1b2ff0374758e6c45d2c0cf036191d4d8f353"
+        }
+      ],
+      "sha256": "4d1ec9aced225a8a9189d20b4e612f820f48a2466ae31f6f8d50173ef10b9e21",
+      "start": 56.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 18.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "1068ba1c44704e3479bd7b297361351be0e26340e7c00005114ee9d86c42b528",
+      "duration": 18.0,
+      "duration_error_seconds": 0.0,
+      "end": 77.0,
+      "output_filename": "clip_1068ba1c44704e3479bd7b297361351be0e26340e7c00005114ee9d86c42b528.mp4",
+      "references": [
+        {
+          "candidate_index": 1,
+          "label": "later_end",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "6e19799346ed9f94f0e072c933590bb06b65c8a4900c4f0bac7c3fc9d4c7c53a"
+          },
+          "variant_id": "cd80d6f284753f8c641e507becf4c8abfa95613efbabd0eef8406b34e7d4665f"
+        }
+      ],
+      "sha256": "6bf01d4d0ebfef1e7a24b2f29cc478f3620dfebe9cc3108879522808554dbf03",
+      "start": 59.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 18.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "628f82d789019b576a11861e782b71ca5937ccfee59c3835b7ebf16d417c5b28",
+      "duration": 21.0,
+      "duration_error_seconds": 0.0,
+      "end": 77.0,
+      "output_filename": "clip_628f82d789019b576a11861e782b71ca5937ccfee59c3835b7ebf16d417c5b28.mp4",
+      "references": [
+        {
+          "candidate_index": 1,
+          "label": "both",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "1e1306e9b1ab8ea3c0fa9878adcaef296dc3845329d425f2c44697d8bb0b670a"
+          },
+          "variant_id": "1b2ad230d3d98d3c0d3bada2ea195908f98c0e4cb68169f8402cb6858204f328"
+        }
+      ],
+      "sha256": "53ccbc836cf6b50904cb04f523dbf8a7294a0d832a3ec637beaa16e86e99692b",
+      "start": 56.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 21.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "21.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "21.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "b95b034fc9666eefef54e0e2ff0136fb1fc4457087cf0a44438c297d3ef8eb53",
+      "duration": 15.0,
+      "duration_error_seconds": 0.0,
+      "end": 89.0,
+      "output_filename": "clip_b95b034fc9666eefef54e0e2ff0136fb1fc4457087cf0a44438c297d3ef8eb53.mp4",
+      "references": [
+        {
+          "candidate_index": 2,
+          "label": "original",
+          "provenance": {
+            "input": "analysis"
+          },
+          "variant_id": "2ffd8fed1568819fd5d822eb36f7a61d5a8e5a2daa4de9418f143ceb0539ec67"
+        }
+      ],
+      "sha256": "0eae1e6557d6eed65f377e07dbc608ed6c841b2a875bb888426d6733b5558854",
+      "start": 74.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 15.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "15.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "15.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "3f6779586f5db32973ed265312548f37567ad9f5dd36351fb2d8da4126775525",
+      "duration": 18.0,
+      "duration_error_seconds": 0.0,
+      "end": 89.0,
+      "output_filename": "clip_3f6779586f5db32973ed265312548f37567ad9f5dd36351fb2d8da4126775525.mp4",
+      "references": [
+        {
+          "candidate_index": 2,
+          "label": "earlier_start",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "4a86113c9424192b4d7158e831749d9d4d26f1eeb7e948bf2ed0058eb510c614"
+          },
+          "variant_id": "96deef1a6e531dc21e0cd1a072131e8c3d5b4316d0cdd548e01159e2cbc6f44c"
+        }
+      ],
+      "sha256": "a195c453a698cfcfe34ddd47ff6b4bc33301217fc263ca03fe7054dde562cc49",
+      "start": 71.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 18.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "54995ee0777c1afe16124d007d7189d4bbe51685b677cbd66b77ce26caacca79",
+      "duration": 18.0,
+      "duration_error_seconds": 0.0,
+      "end": 92.0,
+      "output_filename": "clip_54995ee0777c1afe16124d007d7189d4bbe51685b677cbd66b77ce26caacca79.mp4",
+      "references": [
+        {
+          "candidate_index": 2,
+          "label": "later_end",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "0c0d46c0bd0f455d28a67854b250784702ecb9d91a282d55f8e57b9e35e0e2f1"
+          },
+          "variant_id": "3496daa6617f60f2471efe9df068b44da4f86c58a119696ae2f5027e9bad4935"
+        }
+      ],
+      "sha256": "cdb861e364478620318c1d85cb36cb5ca84becd0d169df0a2fdf760e4a66e0ae",
+      "start": 74.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 18.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "3da9d1fe3287f6dd10e7a5d681e2c8bf230cc8846d3a5c07f425594674e7d6a4",
+      "duration": 21.0,
+      "duration_error_seconds": 0.0,
+      "end": 92.0,
+      "output_filename": "clip_3da9d1fe3287f6dd10e7a5d681e2c8bf230cc8846d3a5c07f425594674e7d6a4.mp4",
+      "references": [
+        {
+          "candidate_index": 2,
+          "label": "both",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "0012bf6ec9fd255e917dfdf62fae92c686266dd32b191d81e52d209dda008030"
+          },
+          "variant_id": "de6f1f8f995c3495afbaa1becf8c7e4803266c9c0f49fcac85c7a8b08e70b2c4"
+        }
+      ],
+      "sha256": "2544459cd223b114196b6fc615437a6ef1d4f78c7e45b5953301747ad6310fed",
+      "start": 71.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 21.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "21.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "21.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "73ed2ee77dd36280b52f7e26ef64c7623d8394d406a49dc924d8ddf6b91e9809",
+      "duration": 15.0,
+      "duration_error_seconds": 0.0,
+      "end": 151.0,
+      "output_filename": "clip_73ed2ee77dd36280b52f7e26ef64c7623d8394d406a49dc924d8ddf6b91e9809.mp4",
+      "references": [
+        {
+          "candidate_index": 3,
+          "label": "original",
+          "provenance": {
+            "input": "analysis"
+          },
+          "variant_id": "9651376a8ed2e1dcdcdbae76de491a4c34650ca94d663e3b2220c766794f85e5"
+        }
+      ],
+      "sha256": "992e148101d96ad0bbcf14589d1c840e84c34cb23795ffd2d50ba0c923c693cd",
+      "start": 136.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 15.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "15.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "15.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "5b4070bf480d8066d7c824d98b8218266585ce1ccc5180f5ca32875e603be382",
+      "duration": 18.0,
+      "duration_error_seconds": 0.0,
+      "end": 151.0,
+      "output_filename": "clip_5b4070bf480d8066d7c824d98b8218266585ce1ccc5180f5ca32875e603be382.mp4",
+      "references": [
+        {
+          "candidate_index": 3,
+          "label": "earlier_start",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "f7b6217a96dca36f7b1565a14d9b5620b861e44cb71cd7a8b52d3a8ff5a54554"
+          },
+          "variant_id": "b9b854012cd8cb8eb5225eb73e396323aa849965cc8647df4aa438db252ed547"
+        }
+      ],
+      "sha256": "8d06885844ee500fa2da1d726adb83ff4c51f81580f8d317599b33ba4b3c16a5",
+      "start": 133.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 18.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "fa7dda4c8edf69ae4baf5da37dc7e87a04c34dd8b9dd2a1ab7fdc90dc5cc5feb",
+      "duration": 18.0,
+      "duration_error_seconds": 0.0,
+      "end": 154.0,
+      "output_filename": "clip_fa7dda4c8edf69ae4baf5da37dc7e87a04c34dd8b9dd2a1ab7fdc90dc5cc5feb.mp4",
+      "references": [
+        {
+          "candidate_index": 3,
+          "label": "later_end",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "4c2b74b38925020a82f65227c8ad27e8e24b1555afa859a32f21a68132e5e73d"
+          },
+          "variant_id": "eb20950f3ebc83e27e7720d0c148c96b806f44d02477d48b666131fac9fd05bd"
+        }
+      ],
+      "sha256": "ca8daf487cceda27139c120881d6fe03a40fb9ec11683829ce70d48f0c61cd94",
+      "start": 136.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 18.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "a7e34da69b45787b6bd7e01e28706ac7785fd8697715633da63fdcf3de2bd744",
+      "duration": 21.0,
+      "duration_error_seconds": 0.0,
+      "end": 154.0,
+      "output_filename": "clip_a7e34da69b45787b6bd7e01e28706ac7785fd8697715633da63fdcf3de2bd744.mp4",
+      "references": [
+        {
+          "candidate_index": 3,
+          "label": "both",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "489cc8286ac8abaf3573c3b1ab13264fbc4dbc8e625707fd66fd7af83688bf3e"
+          },
+          "variant_id": "1ff7d4eb833e4f2c38fece0baafc1fae72b9545f6a82578bfde0d6dbac87f3f2"
+        }
+      ],
+      "sha256": "7d97714016ca80ec758f919f676dd3a4d6a03a8a71296adb8a16db9ae844110e",
+      "start": 133.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 21.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "21.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "21.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "d36e6dcdef15c070879f08a9e6fbd04c67f9f9fa35c80fa39575e0c534be94b6",
+      "duration": 15.0,
+      "duration_error_seconds": 0.0,
+      "end": 175.0,
+      "output_filename": "clip_d36e6dcdef15c070879f08a9e6fbd04c67f9f9fa35c80fa39575e0c534be94b6.mp4",
+      "references": [
+        {
+          "candidate_index": 4,
+          "label": "original",
+          "provenance": {
+            "input": "analysis"
+          },
+          "variant_id": "e08e9def64bbba547ba26791f4e70954841ca9bf2718d7f0533aa2df0c1de9f4"
+        }
+      ],
+      "sha256": "0cb9abc380644174b1901a9bade5e91f53952ece869f710cdc280f727ca6e679",
+      "start": 160.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 15.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "15.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "15.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "b24883493c5bea6fdccaf316ced95e488cd8773eea9ecfef5ad2bde8f0020fb0",
+      "duration": 18.0,
+      "duration_error_seconds": 0.0,
+      "end": 175.0,
+      "output_filename": "clip_b24883493c5bea6fdccaf316ced95e488cd8773eea9ecfef5ad2bde8f0020fb0.mp4",
+      "references": [
+        {
+          "candidate_index": 4,
+          "label": "earlier_start",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "a12380f24ebfc625888cfdda6647b3d6bc81288995722f77336914781c516a8d"
+          },
+          "variant_id": "7794ff9a074429c330db572e239af43646456d332b53306817711ec2293cdc91"
+        }
+      ],
+      "sha256": "214395ab62e3e7437cf66e9f8b63cfa1ae9b3c9499734baead9761630a4461c9",
+      "start": 157.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 18.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "551248bc6b44ca1579cfc06b1cf82e27e0df3316c11a716460de86e9e57256bf",
+      "duration": 18.0,
+      "duration_error_seconds": 0.0,
+      "end": 178.0,
+      "output_filename": "clip_551248bc6b44ca1579cfc06b1cf82e27e0df3316c11a716460de86e9e57256bf.mp4",
+      "references": [
+        {
+          "candidate_index": 4,
+          "label": "later_end",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "4abb5a3b317dc398254732297137531717fc987258fc7c16fcb2d44fcf47c80f"
+          },
+          "variant_id": "0ad7a123a077659a41f0cb4112d952ea327fc58a87dba804d8b87018cd182add"
+        }
+      ],
+      "sha256": "bf69c19fd6f06c3a71b8bc01aad6b06bf3b840a80302491ecdf6d36e1e7c48f5",
+      "start": 160.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 18.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "18.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    },
+    {
+      "clip_id": "15c7036db7a8332ac4ccae0bc7dd268281aa384f913c75f41fecea105713d6c4",
+      "duration": 21.0,
+      "duration_error_seconds": 0.0,
+      "end": 178.0,
+      "output_filename": "clip_15c7036db7a8332ac4ccae0bc7dd268281aa384f913c75f41fecea105713d6c4.mp4",
+      "references": [
+        {
+          "candidate_index": 4,
+          "label": "both",
+          "provenance": {
+            "input": "experiment",
+            "plan_id": "6f505d752366c42a95b57afb9b72c43d40edff0679c7f39f579b28cd37291dcb",
+            "variant_id": "e24bdda1a00d8e8dac591027ab0c3bb0337aa7629a03260e78bdaa5b0281fd5c"
+          },
+          "variant_id": "cda21d7276ee331f11c0ec8309ae60db22e052333009926f4aa19666e861b20b"
+        }
+      ],
+      "sha256": "7e90d6f2c1787352eb813331e37788d1e7599cc65208218722cd145d14444069",
+      "start": 157.0,
+      "status": "exported",
+      "verification": {
+        "duration_seconds": 21.0,
+        "streams": [
+          {
+            "avg_frame_rate": "60/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "duration": "21.000000",
+            "start_time": "0.000000"
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "21.000000",
+            "start_time": "0.000000"
+          }
+        ]
+      }
+    }
+  ],
+  "plan_id": "1799a749ae0180e410382d2ad88506893418f2b6056c948392d6f2f7b56f11de",
+  "schema_version": 1,
+  "status": "complete"
+}

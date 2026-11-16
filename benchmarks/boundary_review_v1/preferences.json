@@ -1,0 +1,32 @@
+[
+  {
+    "candidate_index": 0,
+    "notes": "Best tested option, NOT a perfect clip; both start and end remain inadequate.",
+    "provisional": false,
+    "variant": "later"
+  },
+  {
+    "candidate_index": 1,
+    "notes": "Supplied human preference.",
+    "provisional": false,
+    "variant": "both"
+  },
+  {
+    "candidate_index": 2,
+    "notes": "Provisional: Original and Earlier tie numerically. Original has the better ending; Earlier has a better start. Neither is ideal.",
+    "provisional": true,
+    "variant": "original"
+  },
+  {
+    "candidate_index": 3,
+    "notes": "Supplied human preference.",
+    "provisional": false,
+    "variant": "original"
+  },
+  {
+    "candidate_index": 4,
+    "notes": "Supplied human preference.",
+    "provisional": false,
+    "variant": "later"
+  }
+]

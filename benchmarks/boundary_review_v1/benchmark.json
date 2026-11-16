@@ -1,0 +1,15 @@
+{
+  "benchmark": "boundary_review_v1",
+  "files": {
+    "evaluation_plan.json": "711eb2d5559f126e7df4e2647a0d73446fcf73c2aa166088b11cf36d54f9e1f2",
+    "export_manifest.json": "002e69f76020166890577137c00c5c77c7fbc348a57b9594e6ba088d92ebc6e3",
+    "human_reviews.json": "8d25e6e4a332cf4b78dca6085dbb0cfcd6ddbecd173fd9086ef3efe06455fad0",
+    "preferences.json": "53b200ddb939db33e1d628f6c6a0f510d4fa2d32f0f186b604685d183c3b9d33",
+    "reviews.json": "9aa0ed2aa3084f79f94e89c94ecac9c414a5e3166d1a913dd6c56013b0ccf368",
+    "supplied_request.txt": "2520cd450de89aa018711460711feba26510b03ce25d9e92901b29e57e58835d"
+  },
+  "notes_provenance": "Cleaned summaries are paraphrases supplied by the user, not verbatim original review speech. Supplied request preserved byte-for-byte; earlier verbatim observations unavailable.",
+  "review_origin": "Human ratings supplied by user; no AI-generated ratings",
+  "schema_version": 1,
+  "source_head": "9dd1cf3"
+}
