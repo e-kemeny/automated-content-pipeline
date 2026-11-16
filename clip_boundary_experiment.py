@@ -184,6 +184,18 @@ def compare_reviews(plan,reviews):
         candidates=results,limitations=list(LIMITATIONS))
 
 
+def encode_clip(video,target,start,duration):
+    """Existing horizontal boundary encoder and verification, shared by experiments."""
+    subprocess.run(["ffmpeg","-v","error","-nostdin","-n","-ss",str(start),
+        "-i",str(video),"-t",str(duration),"-map","0:v:0","-map","0:a:0",
+        "-c:v","libx264","-preset","fast","-crf","18","-pix_fmt","yuv420p",
+        "-c:a","aac","-b:a","192k","-movflags","+faststart",str(target)],
+        check=True,capture_output=True,text=True)
+    probe=probe_clip(target)
+    error=verify_duration(probe,duration)
+    return dict(verification=probe,duration_error_seconds=error,sha256=media_sha256(target))
+
+
 def export_plan(plan,video,output_root):
     """Stage all variants, verify them, then publish a new isolated directory."""
     validate_plan(plan)
@@ -216,18 +228,10 @@ def export_plan(plan,video,output_root):
             for variant in row["variants"]:
                 filename=f"candidate_{row['candidate_index']:03d}_{variant['name']}.mp4"
                 target=stage/filename
-                # Same horizontal H.264/AAC settings as Shorts; no reusable encoder function exists there.
-                subprocess.run(["ffmpeg","-v","error","-nostdin","-n","-ss",str(variant["start"]),
-                    "-i",str(video),"-t",str(variant["duration"]),"-map","0:v:0","-map","0:a:0",
-                    "-c:v","libx264","-preset","fast","-crf","18","-pix_fmt","yuv420p",
-                    "-c:a","aac","-b:a","192k","-movflags","+faststart",str(target)],
-                    check=True,capture_output=True,text=True)
-                probe=probe_clip(target)
-                error=verify_duration(probe,variant["duration"])
+                details=encode_clip(video,target,variant["start"],variant["duration"])
                 manifest["clips"].append(dict(candidate_index=row["candidate_index"],variant_id=variant["variant_id"],
                     variant=variant["name"],start=variant["start"],end=variant["end"],
-                    output_filename=filename,verification=probe,duration_error_seconds=error,
-                    sha256=media_sha256(target),status="exported"))
+                    output_filename=filename,**details,status="exported"))
         if stat_identity(video)!=before:
             raise ValueError("Source changed during export")
         (stage/"boundary_export_manifest.json").write_text(json.dumps(manifest,sort_keys=True,indent=2,allow_nan=False)+"\n",
