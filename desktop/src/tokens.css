@@ -1,0 +1,29 @@
+/* Exact portfolio palette supplied by the owner; no inferred brand colors. */
+@theme {
+ --color-base: #0B0D10;
+ --color-surface: #15181C;
+ --color-surface2: #1D2126;
+ --color-text: #E8E6DD;
+ --color-muted: #8A8F98;
+ --color-accent: #F2A65A;
+ --color-success: #39FF88;
+ --color-accent-dim: #946437;
+ --color-warm: #F2A65A;
+ --font-sans: 'Inter Variable', Inter, system-ui, sans-serif;
+ --font-label: 'Space Mono', monospace;
+ --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+ --spacing: .25rem;
+}
+:root {
+ --base: var(--color-base); --surface: var(--color-surface); --surface2: var(--color-surface2);
+ --text: var(--color-text); --muted: var(--color-muted); --accent: var(--color-accent); --accent-dim: var(--color-accent-dim); --warm: var(--color-warm);
+ --line: color-mix(in srgb, var(--muted) 19%, transparent);
+ --warm-wash: color-mix(in srgb, var(--warm) 7%, transparent);
+ --warm-line: color-mix(in srgb, var(--warm) 28%, transparent);
+ --scroll-hover: #2A2E33;
+ --grid: rgba(255,255,255,.035);
+ --radius: 10px; --rail-width: 88px;
+ --space-workspace: clamp(18px, 3vw, 42px);
+ --motion-quick: 180ms; --motion-enter: 480ms;
+ --ease-cinema: cubic-bezier(.22,1,.36,1);
+}
