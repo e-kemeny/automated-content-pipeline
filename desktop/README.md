@@ -32,7 +32,7 @@ static illustrative geometry, not footage, analysis, timestamps or progress. Its
 screen-reader description identifies it as decorative; the single Preview mode
 indicator describes the unconnected interface. No slogans or data claims are shown.
 
-CSS-only animation runs twice and settles into separated clips. Hidden-page and
+CSS-only animation loops while enabled. Hidden-page and
 manual pause behavior are preserved. Reduced motion shows a static separated layout.
 No rendering loop, 3D or new dependencies. Review retains its viewer/candidate/timeline
 and disabled inspector; Exports retains an empty library and unconnected destination.
@@ -130,3 +130,8 @@ reported inconsistent window bounds (13x13 despite a full-size screenshot), so
 Review/Exports activation, keyboard navigation, resize, close/reopen via window
 controls, and OS reduced-motion testing remain manual checks. No runtime crash
 was observed; a full WebView console audit has not been performed.
+
+## Native stabilization (03B)
+
+See [native-stabilization.md](docs/native-stabilization.md) for reproduced defects,
+regression results and the still-required native acceptance checklist.

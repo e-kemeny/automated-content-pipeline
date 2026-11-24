@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Brand } from './components/Brand'
 import { Icon } from './components/Icons'
 import { Studio, Review, Exports } from './components/Workspaces'
@@ -7,6 +7,8 @@ const screens = [{ id: 'studio', label: 'Studio' }, { id: 'review', label: 'Revi
 type Screen = typeof screens[number]['id']
 export default function App() {
  const [screen, setScreen] = useState<Screen>('studio')
+ const workspace = useRef<HTMLElement>(null)
+ useLayoutEffect(() => { workspace.current?.scrollTo({ top: 0, left: 0, behavior: 'instant' }) }, [screen])
  const [file, setFile] = useState<SelectedFile | null>(null)
  const [motion, setMotion] = useState(true)
  const [visible, setVisible] = useState(!document.hidden)
@@ -15,7 +17,7 @@ export default function App() {
   <a className="skip-link" href="#workspace">Skip to workspace</a>
   <header className="app-header"><Brand/><span className="preview-label" aria-describedby="preview-description">Preview mode</span><span id="preview-description" className="sr-only">Frontend only. File selection shows metadata. No ingestion, analysis or exports are connected.</span></header>
   <aside className="navigation-rail"><nav aria-label="Main navigation">{screens.map(item=><button className="nav-button" key={item.id} onClick={()=>setScreen(item.id)} aria-current={screen===item.id?'page':undefined}><Icon name={item.id}/><span>{item.label}</span></button>)}</nav><button className="motion-button" aria-label={motion?'Pause decorative motion':'Enable decorative motion'} aria-pressed={!motion} onClick={()=>setMotion(!motion)} title={motion?'Pause decorative motion':'Enable decorative motion'}><Icon name={motion?'pause':'spark'}/><span>Motion</span></button></aside>
-  <main id="workspace" tabIndex={-1}>
+  <main ref={workspace} id="workspace" tabIndex={-1}>
    <div className="workspace-heading"><h1>{screens.find(s=>s.id===screen)?.label}</h1></div>
    <div className="screen-transition" key={screen}>{screen==='studio'?<Studio selected={file} onSelect={setFile}/>:screen==='review'?<Review/>:<Exports/>}</div>
 
