@@ -179,3 +179,8 @@ dl { margin:20px 0; } dl div { display:flex; justify-content:space-between; gap:
 }
 .inspector-content>* { min-width:0; }
 .destination div { min-width:0; overflow-wrap:anywhere; }
+
+.runtime-status { margin-left:auto; position:relative; }
+.runtime-status .preview-label { display:block; }
+.runtime-tooltip { position:absolute; right:0; top:calc(100% + 8px); z-index:30; width:min(320px,calc(100vw - 40px)); padding:12px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--text); font-size:11px; line-height:1.6; visibility:hidden; opacity:0; pointer-events:none; }
+.runtime-status:hover .runtime-tooltip,.runtime-status:focus-within .runtime-tooltip { visibility:visible; opacity:1; }

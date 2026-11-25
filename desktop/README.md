@@ -1,4 +1,4 @@
-# Content Pipeline desktop - Milestone 03
+# Content Pipeline desktop - Milestone 04
 
 A React/TypeScript/Vite/Tailwind presentation layer inside a Tauri 2 window. No Python
 bridge, social API, authentication or processing integration.
@@ -29,7 +29,7 @@ one orange diagonal cut. The icon uses a 32-unit viewBox and scales to 24px.
 Studio's lightweight SVG shows an abstract source strip, stylized waveform, three
 selected regions, a moving playhead and segments separating into clips. This is
 static illustrative geometry, not footage, analysis, timestamps or progress. Its
-screen-reader description identifies it as decorative; the single Preview mode
+screen-reader description identifies it as decorative; the compact runtime status
 indicator describes the unconnected interface. No slogans or data claims are shown.
 
 CSS-only animation loops while enabled. Hidden-page and
@@ -135,3 +135,12 @@ was observed; a full WebView console audit has not been performed.
 
 See [native-stabilization.md](docs/native-stabilization.md) for reproduced defects,
 regression results and the still-required native acceptance checklist.
+
+## Typed runtime bridge (04)
+
+The header distinguishes Browser preview, Desktop ready (validated native response),
+and Runtime unavailable (failed or malformed response). Hover or keyboard-focus the
+status for version/OS/architecture and the explicit disconnected Python status.
+See [runtime-bridge.md](docs/runtime-bridge.md) for the contract and verification.
+Run `npm test` for lightweight bridge tests (verified with Node 24.12.0), and
+`cargo test --locked --manifest-path src-tauri/Cargo.toml` for the Rust test.
