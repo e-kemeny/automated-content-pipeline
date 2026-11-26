@@ -57,3 +57,5 @@ no deliberate native IPC failure was introduced into the application.
 Manual review remains appropriate for screen-reader announcements, tooltip behavior
 with Windows display scaling, and other OS/architecture targets. This is runtime
 metadata only: no Python worker, video ingestion, analysis, or export connection.
+
+Milestone 05 extends the header with a separate Python health check; see [python-worker-v1.md](python-worker-v1.md). The runtime command and its response contract remain unchanged.

@@ -1,7 +1,7 @@
-# Content Pipeline desktop - Milestone 04
+# Content Pipeline desktop - Milestone 05
 
-A React/TypeScript/Vite/Tailwind presentation layer inside a Tauri 2 window. No Python
-bridge, social API, authentication or processing integration.
+A React/TypeScript/Vite/Tailwind presentation layer inside a Tauri 2 window with a
+read-only Python worker health check. No video processing, social API or authentication integration.
 
 ## Run
 
@@ -106,8 +106,9 @@ node_modules/ and dist/ are ignored.
 Content Pipeline opens at 1440x900 logical pixels (minimum 800x600), resizable,
 with standard Windows controls, dark theme and #0B0D10 initial background.
 The native icon is derived from the approved cut-frame SVG in icons/source.svg.
-No custom title bar, Python bridge, commands, plugins, updater, shell/filesystem
-permissions or global Tauri JavaScript API are enabled. Capabilities are empty.
+No custom title bar, processing bridge, plugins, updater, shell/filesystem permissions
+or global Tauri JavaScript API are enabled. The local main window may invoke only
+get_runtime_info and check_python_worker. CSP permits the local Tauri IPC channel.
 CSP limits production content to local assets; development additionally allows
 Vite's local WebSocket and React refresh inline script. Inline styles remain
 allowed for existing frontend rendering. Native file-drop interception is off;
@@ -144,3 +145,11 @@ status for version/OS/architecture and the explicit disconnected Python status.
 See [runtime-bridge.md](docs/runtime-bridge.md) for the contract and verification.
 Run `npm test` for lightweight bridge tests (verified with Node 24.12.0), and
 `cargo test --locked --manifest-path src-tauri/Cargo.toml` for the Rust test.
+
+## Python worker health (05)
+
+The compact header now distinguishes native readiness from Python worker health.
+The worker is standard-library-only and never imports the production video pipeline.
+See [python-worker-v1.md](docs/python-worker-v1.md) for interpreter selection,
+protocol examples, timeout/cleanup behavior, tests, and deployment limitations.
+Use the same native launch command above; Python must already be installed.

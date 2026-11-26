@@ -2,5 +2,5 @@
   "identifier": "runtime",
   "description": "Read application runtime metadata from the main local window only.",
   "windows": ["main"],
-  "permissions": ["allow-get-runtime-info"]
+  "permissions": ["allow-get-runtime-info", "allow-check-python-worker"]
 }
