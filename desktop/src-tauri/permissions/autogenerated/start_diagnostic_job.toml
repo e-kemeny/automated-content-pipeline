@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-start-diagnostic-job"
+description = "Enables the start_diagnostic_job command without any pre-configured scope."
+commands.allow = ["start_diagnostic_job"]
+
+[[permission]]
+identifier = "deny-start-diagnostic-job"
+description = "Denies the start_diagnostic_job command without any pre-configured scope."
+commands.deny = ["start_diagnostic_job"]

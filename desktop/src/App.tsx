@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { DiagnosticJob } from './components/DiagnosticJob'
 import { RuntimeStatus } from './components/RuntimeStatus'
 import { Brand } from './components/Brand'
 import { Icon } from './components/Icons'
@@ -20,6 +21,7 @@ export default function App() {
   <aside className="navigation-rail"><nav aria-label="Main navigation">{screens.map(item=><button className="nav-button" key={item.id} onClick={()=>setScreen(item.id)} aria-current={screen===item.id?'page':undefined}><Icon name={item.id}/><span>{item.label}</span></button>)}</nav><button className="motion-button" aria-label={motion?'Pause decorative motion':'Enable decorative motion'} aria-pressed={!motion} onClick={()=>setMotion(!motion)} title={motion?'Pause decorative motion':'Enable decorative motion'}><Icon name={motion?'pause':'spark'}/><span>Motion</span></button></aside>
   <main ref={workspace} id="workspace" tabIndex={-1}>
    <div className="workspace-heading"><h1>{screens.find(s=>s.id===screen)?.label}</h1></div>
+   <DiagnosticJob visible={screen==='studio'}/>
    <div className="screen-transition" key={screen}>{screen==='studio'?<Studio selected={file} onSelect={setFile}/>:screen==='review'?<Review/>:<Exports/>}</div>
 
   </main>

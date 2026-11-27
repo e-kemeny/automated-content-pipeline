@@ -117,3 +117,89 @@ export function desktopPresentation(native: RuntimeStatus, worker: WorkerStatus)
  }
  return { label: 'Native desktop ready', detail: `${nativeDetail} Checking Python worker. ${scope}` }
 }
+
+export type JobPhase = 'Idle' | 'Starting' | 'Running' | 'Cancelling' | 'Completed' | 'Cancelled' | 'Failed'
+export interface JobSnapshot {
+ jobId: string | null
+ revision: number
+ state: JobPhase
+ stage: string
+ startedAt: number | null
+ finishedAt: number | null
+ progress: { completed: number; total: 12 }
+ error: { code: string; message: string; stderr: string } | null
+}
+export const jobActive = (state: JobPhase) => ['Starting', 'Running', 'Cancelling'].includes(state)
+export function parseJobSnapshot(value: unknown): JobSnapshot {
+ const invalid = () => { throw new Error('Invalid diagnostic job state') }
+ if (!value || typeof value !== 'object') return invalid()
+ const v = value as Record<string, unknown>
+ const keys = ['jobId', 'revision', 'state', 'stage', 'startedAt', 'finishedAt', 'progress', 'error']
+ if (Object.keys(v).length !== keys.length || !keys.every(k => Object.hasOwn(v,k))) return invalid()
+ const phases = ['Idle', 'Starting', 'Running', 'Cancelling', 'Completed', 'Cancelled', 'Failed']
+ if (typeof v.state !== 'string' || !phases.includes(v.state) ||
+     typeof v.stage !== 'string' || !v.stage.trim() || v.stage.length > 100 ||
+     !Number.isSafeInteger(v.revision) || (v.revision as number) < 0) return invalid()
+ const timestamp = (n: unknown) => typeof n === 'number' && Number.isSafeInteger(n) && n >= 0
+ if (v.state === 'Idle') {
+  if (v.jobId !== null || v.startedAt !== null || v.finishedAt !== null || v.revision !== 0) return invalid()
+ } else if (typeof v.jobId !== 'string' || !v.jobId || !timestamp(v.startedAt)) return invalid()
+ const terminal = ['Completed','Cancelled','Failed'].includes(v.state)
+ if (terminal ? !timestamp(v.finishedAt) || (v.finishedAt as number) < (v.startedAt as number) : v.finishedAt !== null) return invalid()
+ if (!v.progress || typeof v.progress !== 'object') return invalid()
+ const p = v.progress as Record<string, unknown>
+ if (Object.keys(p).length !== 2 || p.total !== 12 || !Number.isInteger(p.completed) ||
+     (p.completed as number) < 0 || (p.completed as number) > 12) return invalid()
+ if ((v.state === 'Idle' || v.state === 'Starting') && p.completed !== 0) return invalid()
+ if (v.state === 'Completed' && p.completed !== 12) return invalid()
+ if (v.state === 'Failed') {
+  if (!v.error || typeof v.error !== 'object') return invalid()
+  const e = v.error as Record<string, unknown>
+  if (Object.keys(e).length !== 3 || typeof e.code !== 'string' || !e.code ||
+      typeof e.message !== 'string' || !e.message || typeof e.stderr !== 'string') return invalid()
+ } else if (v.error !== null) return invalid()
+ return { jobId: v.jobId as string | null, revision: v.revision as number, state: v.state as JobPhase,
+  stage: v.stage, startedAt: v.startedAt as number | null, finishedAt: v.finishedAt as number | null,
+  progress: { completed: p.completed as number, total: 12 },
+  error: v.error === null ? null : { ...(v.error as NonNullable<JobSnapshot['error']>) } }
+}
+export function newerJobState(previous: JobSnapshot | null, next: JobSnapshot): JobSnapshot {
+ return previous && previous.revision >= next.revision ? previous : next
+}
+type JobTransport = (command: string, args?: Record<string, unknown>) => Promise<unknown>
+export async function jobCommand(
+ command: 'start_diagnostic_job' | 'get_job_state' | 'cancel_diagnostic_job',
+ args?: { jobId: string }, native = isTauri(), transport: JobTransport = invoke,
+): Promise<JobSnapshot | null> {
+ if (!native) return null
+ return parseJobSnapshot(await transport(command, args))
+}
+export const startDiagnosticJob = () => jobCommand('start_diagnostic_job')
+export const getDiagnosticJob = () => jobCommand('get_job_state')
+export const cancelDiagnosticJob = (jobId: string) => jobCommand('cancel_diagnostic_job', { jobId })
+
+type Subscribe = (callback: (value: unknown) => void) => Promise<() => void>
+export async function watchDiagnosticJob(
+ update: (snapshot: JobSnapshot) => void,
+ failure: (error: unknown) => void,
+ native = isTauri(),
+ transport: JobTransport = invoke,
+ subscribe: Subscribe = async callback => {
+  const { listen } = await import('@tauri-apps/api/event')
+  return listen<unknown>('diagnostic-job', event => callback(event.payload))
+ },
+): Promise<() => void> {
+ if (!native) return () => {}
+ let active = true
+ const stop = await subscribe(value => {
+  if (!active) return
+  try { update(parseJobSnapshot(value)) } catch (e) { failure(e) }
+ })
+ const cleanup = () => { active = false; stop() }
+ try {
+  // Subscribe first so a transition between subscription and snapshot cannot be lost.
+  const current = await jobCommand('get_job_state', undefined, true, transport)
+  if (active && current) update(current)
+ } catch (e) { cleanup(); throw e }
+ return cleanup
+}

@@ -153,3 +153,10 @@ The worker is standard-library-only and never imports the production video pipel
 See [python-worker-v1.md](docs/python-worker-v1.md) for interpreter selection,
 protocol examples, timeout/cleanup behavior, tests, and deployment limitations.
 Use the same native launch command above; Python must already be installed.
+
+## Diagnostic jobs (06)
+
+Studio can run and cancel a controlled Python diagnostic with live check counts.
+This does not process the selected video. See
+[diagnostic-jobs-v1.md](docs/diagnostic-jobs-v1.md) for lifecycle, protocol, limits,
+and verification commands. The native launch command is unchanged.

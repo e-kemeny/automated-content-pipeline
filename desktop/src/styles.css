@@ -184,3 +184,17 @@ dl { margin:20px 0; } dl div { display:flex; justify-content:space-between; gap:
 .runtime-status .preview-label { display:block; }
 .runtime-tooltip { position:absolute; right:0; top:calc(100% + 8px); z-index:30; width:min(320px,calc(100vw - 40px)); padding:12px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--text); font-size:11px; line-height:1.6; visibility:hidden; opacity:0; pointer-events:none; }
 .runtime-status:hover .runtime-tooltip,.runtime-status:focus-within .runtime-tooltip { visibility:visible; opacity:1; }
+
+.diagnostic-control { display:flex; flex-wrap:wrap; align-items:center; gap:12px 20px; margin:0 0 20px; padding:12px 0; border-block:1px solid var(--line); font-size:12px; }
+.diagnostic-control[hidden] { display:none; }
+.diagnostic-caption { display:flex; flex-direction:column; gap:4px; }
+.diagnostic-status { flex:1; min-width:150px; }
+.diagnostic-actions { display:flex; gap:16px; }
+.diagnostic-control progress { width:120px; height:4px; accent-color:#F2A65A; }
+.diagnostic-control[data-state="Completed"] .diagnostic-status { color:#39FF88; }
+.diagnostic-control button:disabled { opacity:.4; cursor:not-allowed; }
+.diagnostic-control .file-error { flex-basis:100%; margin:0; overflow-wrap:anywhere; }
+.diagnostic-control progress { appearance:none; border:0; background:var(--line); }
+.diagnostic-control progress::-webkit-progress-bar { background:var(--line); }
+.diagnostic-control progress::-webkit-progress-value { background:#F2A65A; }
+.diagnostic-control progress::-moz-progress-bar { background:#F2A65A; }

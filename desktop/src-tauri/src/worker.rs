@@ -18,13 +18,13 @@ const OUTPUT_LIMIT: u64 = 65536;
 static REQUEST_ID: AtomicU64 = AtomicU64::new(1);
 static IN_FLIGHT: Mutex<()> = Mutex::new(());
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct WorkerError {
-    code: String,
-    message: String,
-    stderr: String,
+    pub(crate) code: String,
+    pub(crate) message: String,
+    pub(crate) stderr: String,
 }
-fn error(code: &str, message: impl ToString) -> WorkerError {
+pub(crate) fn error(code: &str, message: impl ToString) -> WorkerError {
     WorkerError {
         code: code.into(),
         message: message.to_string(),
@@ -144,7 +144,7 @@ fn interpreter(
 }
 
 // Own the child until wait completes, including every early-return/error path.
-struct ManagedChild(Child);
+pub(crate) struct ManagedChild(pub(crate) Child);
 impl Drop for ManagedChild {
     fn drop(&mut self) {
         if !matches!(self.0.try_wait(), Ok(Some(_))) {
@@ -155,7 +155,7 @@ impl Drop for ManagedChild {
 }
 
 #[cfg(windows)]
-mod job {
+pub(crate) mod job {
     use super::*;
     use std::os::windows::io::AsRawHandle;
     use windows_sys::Win32::{
@@ -219,7 +219,7 @@ fn wait_bounded(
     }
 }
 
-fn read_limited(pipe: impl Read) -> std::io::Result<Vec<u8>> {
+pub(crate) fn read_limited(pipe: impl Read) -> std::io::Result<Vec<u8>> {
     let mut bytes = Vec::new();
     pipe.take(OUTPUT_LIMIT + 1).read_to_end(&mut bytes)?;
     Ok(bytes)
@@ -308,7 +308,7 @@ fn execute(
     })
 }
 
-fn check(path: &Path) -> Result<WorkerHealth, WorkerError> {
+pub(crate) fn command_for_worker(path: &Path) -> Result<Command, WorkerError> {
     // Only the shipped worker is executable, not a path/code string supplied by React.
     if std::fs::read(path).map_err(|e| error("worker_missing", e))?
         != include_bytes!("../../worker/worker.py")
@@ -322,12 +322,22 @@ fn check(path: &Path) -> Result<WorkerHealth, WorkerError> {
         std::env::var_os("CONTENT_PIPELINE_PYTHON"),
         std::env::var_os("VIRTUAL_ENV"),
     )?;
+    let mut command = Command::new(python);
+    command.arg("-I").arg("-B").arg(path);
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        command.creation_flags(0x08000000);
+    }
+    Ok(command)
+}
+
+fn check(path: &Path) -> Result<WorkerHealth, WorkerError> {
+    let command = command_for_worker(path)?;
     let id = format!("health-{}", REQUEST_ID.fetch_add(1, Ordering::Relaxed));
     let request =
         serde_json::json!({"request_id": id, "protocol_version": 1, "command": "health_check"})
             .to_string();
-    let mut command = Command::new(python);
-    command.arg("-I").arg("-B").arg(path);
     execute(command, request.as_bytes(), &id, TIMEOUT)
 }
 
