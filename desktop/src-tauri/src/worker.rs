@@ -198,7 +198,7 @@ pub(crate) mod job {
     }
 }
 
-fn wait_bounded(
+pub(crate) fn wait_bounded(
     child: &mut Child,
     timeout: Duration,
 ) -> Result<std::process::ExitStatus, WorkerError> {

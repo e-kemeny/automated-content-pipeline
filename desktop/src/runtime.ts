@@ -48,7 +48,7 @@ export function runtimePresentation(status: RuntimeStatus) {
   case 'checking': return { label: 'Checking runtime', detail: `Checking the desktop connection. ${scope}` }
   case 'browser': return { label: 'Browser preview', detail: `Running outside Tauri. ${scope}` }
   case 'unavailable': return { label: 'Runtime unavailable', detail: `${status.error}. ${scope}` }
-  case 'ready': return { label: 'Desktop ready', detail: `Version ${status.info.applicationVersion} · ${status.info.operatingSystem} · ${status.info.cpuArchitecture}. Native runtime available. ${scope}` }
+  case 'ready': return { label: 'Desktop ready', detail: `Version ${status.info.applicationVersion} Ãƒâ€šÃ‚· ${status.info.operatingSystem} Ãƒâ€šÃ‚· ${status.info.cpuArchitecture}. Native runtime available. ${scope}` }
  }
 }
 
@@ -107,10 +107,10 @@ export function checkWorkerOnce(): Promise<WorkerStatus> {
 
 export function desktopPresentation(native: RuntimeStatus, worker: WorkerStatus) {
  if (native.kind !== 'ready') return runtimePresentation(native)
- const nativeDetail = `Version ${native.info.applicationVersion} · ${native.info.operatingSystem} · ${native.info.cpuArchitecture}.`
- const scope = 'Video processing is not connected. File selection is metadata-only.'
+ const nativeDetail = `Version ${native.info.applicationVersion} Ãƒâ€šÃ‚· ${native.info.operatingSystem} Ãƒâ€šÃ‚· ${native.info.cpuArchitecture}.`
+ const scope = 'Health check only; processing dependencies are validated when you select and process a video.'
  if (worker.kind === 'available') {
-  return { label: 'Python worker available', detail: `${nativeDetail} Python ${worker.info.pythonVersion} · ${worker.info.operatingSystem} · ${worker.info.cpuArchitecture} · protocol ${worker.info.workerProtocolVersion}. Health check only. ${scope}` }
+  return { label: 'Python worker available', detail: `${nativeDetail} Python ${worker.info.pythonVersion} Ãƒâ€šÃ‚· ${worker.info.operatingSystem} Ãƒâ€šÃ‚· ${worker.info.cpuArchitecture} Ãƒâ€šÃ‚· protocol ${worker.info.workerProtocolVersion}. Health check only. ${scope}` }
  }
  if (worker.kind === 'unavailable') {
   return { label: 'Python worker unavailable', detail: `${nativeDetail} Native desktop ready. ${worker.error}. ${scope}` }
@@ -119,14 +119,17 @@ export function desktopPresentation(native: RuntimeStatus, worker: WorkerStatus)
 }
 
 export type JobPhase = 'Idle' | 'Starting' | 'Running' | 'Cancelling' | 'Completed' | 'Cancelled' | 'Failed'
+export interface Artifact { path: string; kind: 'shorts' | 'longform' | 'review' | 'analysis'; size_bytes: number; sha256: string; duration_seconds: number | null }
+export interface Processing { workspace: string; mode: 'shorts' | 'longform' | 'both'; artifacts: Artifact[] }
 export interface JobSnapshot {
+ processing?: Processing
  jobId: string | null
  revision: number
  state: JobPhase
  stage: string
  startedAt: number | null
  finishedAt: number | null
- progress: { completed: number; total: 12 }
+ progress: { completed: number; total: 12 | 0 }
  error: { code: string; message: string; stderr: string } | null
 }
 export const jobActive = (state: JobPhase) => ['Starting', 'Running', 'Cancelling'].includes(state)
@@ -134,7 +137,9 @@ export function parseJobSnapshot(value: unknown): JobSnapshot {
  const invalid = () => { throw new Error('Invalid diagnostic job state') }
  if (!value || typeof value !== 'object') return invalid()
  const v = value as Record<string, unknown>
+ const processing = Object.hasOwn(v, 'processing')
  const keys = ['jobId', 'revision', 'state', 'stage', 'startedAt', 'finishedAt', 'progress', 'error']
+ if (processing) keys.push('processing')
  if (Object.keys(v).length !== keys.length || !keys.every(k => Object.hasOwn(v,k))) return invalid()
  const phases = ['Idle', 'Starting', 'Running', 'Cancelling', 'Completed', 'Cancelled', 'Failed']
  if (typeof v.state !== 'string' || !phases.includes(v.state) ||
@@ -148,19 +153,34 @@ export function parseJobSnapshot(value: unknown): JobSnapshot {
  if (terminal ? !timestamp(v.finishedAt) || (v.finishedAt as number) < (v.startedAt as number) : v.finishedAt !== null) return invalid()
  if (!v.progress || typeof v.progress !== 'object') return invalid()
  const p = v.progress as Record<string, unknown>
- if (Object.keys(p).length !== 2 || p.total !== 12 || !Number.isInteger(p.completed) ||
+ if (Object.keys(p).length !== 2 || p.total !== (processing ? 0 : 12) || !Number.isInteger(p.completed) ||
      (p.completed as number) < 0 || (p.completed as number) > 12) return invalid()
  if ((v.state === 'Idle' || v.state === 'Starting') && p.completed !== 0) return invalid()
- if (v.state === 'Completed' && p.completed !== 12) return invalid()
+ if (!processing && v.state === 'Completed' && p.completed !== 12) return invalid()
  if (v.state === 'Failed') {
   if (!v.error || typeof v.error !== 'object') return invalid()
   const e = v.error as Record<string, unknown>
   if (Object.keys(e).length !== 3 || typeof e.code !== 'string' || !e.code ||
       typeof e.message !== 'string' || !e.message || typeof e.stderr !== 'string') return invalid()
  } else if (v.error !== null) return invalid()
- return { jobId: v.jobId as string | null, revision: v.revision as number, state: v.state as JobPhase,
+ let details: Processing | undefined
+ if (processing) {
+  const x = v.processing as Processing
+  if (v.state === 'Idle' || p.completed !== 0 || !x || typeof x !== 'object' || Object.keys(x).length !== 3 ||
+      typeof x.workspace !== 'string' || !x.workspace || !['shorts','longform','both'].includes(x.mode) || !Array.isArray(x.artifacts)) return invalid()
+  const expected = v.state === 'Completed' ? {shorts:7,longform:3,both:8}[x.mode] : 0
+  if (x.artifacts.length !== expected || new Set(x.artifacts.map(a => a.path)).size !== expected) return invalid()
+  for (const a of x.artifacts) {
+   if (!a || typeof a !== 'object' || Object.keys(a).length !== 5 || typeof a.path !== 'string' || !a.path ||
+       !['shorts','longform','review','analysis'].includes(a.kind) || !Number.isSafeInteger(a.size_bytes) || a.size_bytes <= 0 ||
+       typeof a.sha256 !== 'string' || !/^[0-9a-f]{64}$/i.test(a.sha256) ||
+       (['shorts','longform'].includes(a.kind) ? typeof a.duration_seconds !== 'number' || !Number.isFinite(a.duration_seconds) || a.duration_seconds <= 0 : a.duration_seconds !== null)) return invalid()
+  }
+  details = {...x,artifacts:x.artifacts.map(a => ({...a}))}
+ }
+ return { ...(details ? {processing:details} : {}), jobId: v.jobId as string | null, revision: v.revision as number, state: v.state as JobPhase,
   stage: v.stage, startedAt: v.startedAt as number | null, finishedAt: v.finishedAt as number | null,
-  progress: { completed: p.completed as number, total: 12 },
+  progress: { completed: p.completed as number, total: p.total as 0 | 12 },
   error: v.error === null ? null : { ...(v.error as NonNullable<JobSnapshot['error']>) } }
 }
 export function newerJobState(previous: JobSnapshot | null, next: JobSnapshot): JobSnapshot {
@@ -179,15 +199,18 @@ export const getDiagnosticJob = () => jobCommand('get_job_state')
 export const cancelDiagnosticJob = (jobId: string) => jobCommand('cancel_diagnostic_job', { jobId })
 
 type Subscribe = (callback: (value: unknown) => void) => Promise<() => void>
+export async function subscribeJobEvents(callback: (value: unknown) => void,
+ listen = async (...args: Parameters<typeof import('@tauri-apps/api/event').listen<unknown>>) =>
+  (await import('@tauri-apps/api/event')).listen<unknown>(...args)) {
+ // Rust emit_to('main') excludes listeners registered with the global Any target.
+ return listen('diagnostic-job', event => callback(event.payload), { target: 'main' })
+}
 export async function watchDiagnosticJob(
  update: (snapshot: JobSnapshot) => void,
  failure: (error: unknown) => void,
  native = isTauri(),
  transport: JobTransport = invoke,
- subscribe: Subscribe = async callback => {
-  const { listen } = await import('@tauri-apps/api/event')
-  return listen<unknown>('diagnostic-job', event => callback(event.payload))
- },
+ subscribe: Subscribe = subscribeJobEvents,
 ): Promise<() => void> {
  if (!native) return () => {}
  let active = true

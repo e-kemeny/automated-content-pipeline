@@ -38,6 +38,8 @@ pub struct Progress {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Snapshot {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub processing: Option<crate::processing::Processing>,
     pub job_id: Option<String>,
     pub revision: u64,
     pub state: Phase,
@@ -51,6 +53,7 @@ struct Inner {
     snapshot: Snapshot,
     closing: bool,
     generation: u64,
+    pending_artifacts: Vec<crate::processing::Artifact>,
 }
 pub struct Supervisor {
     inner: Mutex<Inner>,
@@ -67,6 +70,7 @@ impl Default for Supervisor {
         Self {
             inner: Mutex::new(Inner {
                 snapshot: Snapshot {
+                    processing: None,
                     job_id: None,
                     revision: 0,
                     state: Phase::Idle,
@@ -81,6 +85,7 @@ impl Default for Supervisor {
                 },
                 closing: false,
                 generation: 0,
+                pending_artifacts: vec![],
             }),
             session: SystemTime::now()
                 .duration_since(UNIX_EPOCH)
@@ -102,7 +107,9 @@ impl Supervisor {
             return Err(error("job_busy", "A diagnostic job is already active"));
         }
         inner.generation += 1;
+        inner.pending_artifacts.clear();
         inner.snapshot = Snapshot {
+            processing: None,
             job_id: Some(format!("diagnostic-{}-{}", self.session, inner.generation)),
             revision: inner.snapshot.revision + 1,
             state: Phase::Starting,
@@ -149,10 +156,11 @@ impl Supervisor {
     }
     fn finish(&self, id: &str, result: Result<(), WorkerError>) -> Snapshot {
         let mut inner = self.inner.lock().unwrap();
-        let s = &mut inner.snapshot;
-        if s.job_id.as_deref() != Some(id) || !s.state.active() {
-            return s.clone();
+        if inner.snapshot.job_id.as_deref() != Some(id) || !inner.snapshot.state.active() {
+            return inner.snapshot.clone();
         }
+        let artifacts = std::mem::take(&mut inner.pending_artifacts);
+        let s = &mut inner.snapshot;
         // Whichever operation acquires this lock first wins the cancellation/finish race.
         // Terminal publication only happens after process and reader cleanup.
         if s.state == Phase::Cancelling {
@@ -161,7 +169,10 @@ impl Supervisor {
         } else if let Err(e) = result {
             s.state = Phase::Failed;
             s.error = Some(e);
-        } else if s.state != Phase::Running || s.progress.completed != 12 {
+        } else if s.state != Phase::Running
+            || (s.processing.is_none() && s.progress.completed != 12)
+            || (s.processing.is_some() && artifacts.is_empty())
+        {
             s.state = Phase::Failed;
             s.error = Some(error(
                 "invalid_transition",
@@ -169,6 +180,9 @@ impl Supervisor {
             ));
         } else {
             s.state = Phase::Completed;
+            if let Some(p) = &mut s.processing {
+                p.artifacts = artifacts;
+            }
         }
         s.stage = format!("{:?}", s.state);
         s.finished_at = Some(now().max(s.started_at.unwrap_or_default()));
@@ -300,18 +314,18 @@ enum Pipe {
     Error(String),
 }
 fn read_events(pipe: impl Read, tx: mpsc::SyncSender<Pipe>) {
+    read_events_limit(pipe, tx, LINE_LIMIT)
+}
+fn read_events_limit(pipe: impl Read, tx: mpsc::SyncSender<Pipe>, limit: u64) {
     let mut reader = BufReader::new(pipe);
     loop {
         let mut line = Vec::new();
-        match (&mut reader)
-            .take(LINE_LIMIT + 1)
-            .read_until(b'\n', &mut line)
-        {
+        match (&mut reader).take(limit + 1).read_until(b'\n', &mut line) {
             Ok(0) => {
                 let _ = tx.send(Pipe::End);
                 return;
             }
-            Ok(_) if line.len() as u64 > LINE_LIMIT || !line.ends_with(b"\n") => {
+            Ok(_) if line.len() as u64 > limit || !line.ends_with(b"\n") => {
                 let _ = tx.send(Pipe::Error("Oversized or unterminated event".into()));
                 return;
             }
@@ -330,9 +344,31 @@ fn read_events(pipe: impl Read, tx: mpsc::SyncSender<Pipe>) {
 fn execute_job(
     supervisor: &Supervisor,
     id: &str,
+    command: Command,
+    timeout: Duration,
+    publish: &impl Fn(Snapshot),
+) -> Result<(), WorkerError> {
+    execute(supervisor, id, command, timeout, publish, None)
+}
+fn drain_diagnostics(mut pipe: impl Read) -> std::io::Result<Vec<u8>> {
+    let mut kept = Vec::new();
+    let mut block = [0u8; 8192];
+    loop {
+        let n = pipe.read(&mut block)?;
+        if n == 0 {
+            return Ok(kept);
+        }
+        let take = n.min(65536 - kept.len());
+        kept.extend_from_slice(&block[..take]);
+    }
+}
+fn execute(
+    supervisor: &Supervisor,
+    id: &str,
     mut command: Command,
     timeout: Duration,
     publish: &impl Fn(Snapshot),
+    config: Option<&crate::media::Config>,
 ) -> Result<(), WorkerError> {
     if supervisor.cancelled(id) {
         return Ok(());
@@ -359,13 +395,27 @@ fn execute_job(
         .stderr
         .take()
         .ok_or_else(|| error("process_error", "Missing stderr"))?;
-    let out = thread::spawn(move || read_events(stdout, tx));
-    let err = thread::spawn(move || worker::read_limited(stderr));
+    let processing = config.is_some();
+    let out = thread::spawn(move || {
+        if processing {
+            read_events_limit(stdout, tx, 65536)
+        } else {
+            read_events(stdout, tx)
+        }
+    });
+    let err = thread::spawn(move || {
+        if processing {
+            drain_diagnostics(stderr)
+        } else {
+            worker::read_limited(stderr)
+        }
+    });
+    let mut processing_stream = config.map(|c| crate::processing::Stream::new(&c.mode));
     let result = (|| {
         if supervisor.cancelled(id) {
             return Ok(());
         }
-        let request = serde_json::json!({"request_id":id,"job_id":id,"protocol_version":1,"command":"diagnostic_job"}).to_string();
+        let request = if let Some(config)=config {serde_json::json!({"request_id":id,"job_id":id,"protocol_version":1,"command":"process_video","config":config})} else {serde_json::json!({"request_id":id,"job_id":id,"protocol_version":1,"command":"diagnostic_job"})}.to_string();
         child
             .0
             .stdin
@@ -385,6 +435,25 @@ fn execute_job(
             }
             match rx.recv_timeout(Duration::from_millis(20)) {
                 Ok(Pipe::Line(line)) => {
+                    if let (Some(process), Some(config)) = (&mut processing_stream, config) {
+                        let stage = process.accept(&line, id, config)?;
+                        let snapshot = {
+                            let mut inner = supervisor.inner.lock().unwrap();
+                            let s = &mut inner.snapshot;
+                            if matches!(s.state, Phase::Starting | Phase::Running) {
+                                s.state = Phase::Running;
+                                s.stage = stage;
+                                s.revision += 1;
+                                Some(s.clone())
+                            } else {
+                                None
+                            }
+                        };
+                        if let Some(s) = snapshot {
+                            publish(s)
+                        }
+                        continue;
+                    }
                     let m = stream.accept(&line, id)?;
                     if let Some(e) = &m.error {
                         return Err(error("worker_failed", format!("{}: {}", e.code, e.message)));
@@ -405,7 +474,7 @@ fn execute_job(
                     ));
                 }
                 if eof {
-                    return if stream.done {
+                    return if processing_stream.as_ref().map_or(stream.done, |s| s.done) {
                         Ok(())
                     } else {
                         Err(error("unexpected_exit", "Worker exited without completion"))
@@ -434,6 +503,13 @@ fn execute_job(
     } else {
         result
     };
+    if result.is_ok() {
+        if let Some(stream) = processing_stream {
+            if stream.done {
+                supervisor.inner.lock().unwrap().pending_artifacts = stream.artifacts;
+            }
+        }
+    }
     result.map_err(|mut e| {
         e.stderr = String::from_utf8_lossy(&diagnostics).into_owned();
         e
@@ -491,3 +567,70 @@ pub fn start_diagnostic_job(
 #[cfg(test)]
 #[path = "jobs_tests.rs"]
 mod tests;
+
+#[tauri::command]
+pub fn start_processing_job(
+    app: tauri::AppHandle,
+    supervisor: State<'_, Arc<Supervisor>>,
+    selection: State<'_, crate::media::MediaSelection>,
+    mode: String,
+) -> Result<Snapshot, WorkerError> {
+    let selected = selection.0.lock().unwrap().clone();
+    let mut config = crate::media::configuration(&selected, &mode, "preflight")?;
+    let reserved = supervisor.reserve()?;
+    let id = reserved.job_id.unwrap();
+    config.workspace = std::path::Path::new(selected.output.as_ref().unwrap())
+        .join(format!("content-pipeline-{id}"))
+        .to_string_lossy()
+        .into();
+    let snapshot = {
+        let mut inner = supervisor.inner.lock().unwrap();
+        inner.snapshot.processing = Some(crate::processing::Processing {
+            workspace: config.workspace.clone(),
+            mode: mode.clone(),
+            artifacts: vec![],
+        });
+        inner.snapshot.progress.total = 0;
+        inner.snapshot.revision += 1;
+        inner.snapshot.clone()
+    };
+    publish(&app, snapshot.clone());
+    let supervisor = supervisor.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            if supervisor.cancelled(&id) {
+                return Ok(());
+            }
+            let path = app
+                .path()
+                .resolve("worker/worker.py", tauri::path::BaseDirectory::Resource)
+                .map_err(|e| error("worker_missing", e))?;
+            let adapter = path.with_file_name("processing.py");
+            if std::fs::read(&adapter).map_err(|e| error("worker_missing", e))?
+                != include_bytes!("../../worker/processing.py")
+            {
+                return Err(error(
+                    "worker_mismatch",
+                    "Processing adapter differs from this build",
+                ));
+            }
+            let mut command = worker::command_for_worker(&path)?;
+            let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../..")
+                .canonicalize()
+                .map_err(|e| error("pipeline_missing", e))?;
+            command.env("CONTENT_PIPELINE_ROOT", root);
+            execute(
+                &supervisor,
+                &id,
+                command,
+                Duration::from_secs(4 * 60 * 60),
+                &|s| publish(&app, s),
+                Some(&config),
+            )
+        }))
+        .unwrap_or_else(|_| Err(error("supervisor_error", "Processing supervisor panicked")));
+        publish(&app, supervisor.finish(&id, result));
+    });
+    Ok(snapshot)
+}

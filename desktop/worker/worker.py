@@ -29,15 +29,17 @@ def parse_request(raw):
     if isinstance(candidate_id, str) and 0 < len(candidate_id) <= 128:
         request_id = candidate_id
     fields = {"request_id", "protocol_version", "command"}
-    if request.get("command") == "diagnostic_job":
+    if request.get("command") in ("diagnostic_job", "process_video"):
         fields.add("job_id")
+    if request.get("command") == "process_video":
+        fields.add("config")
     if request_id is None or set(request) != fields:
         return None, failure(request_id, "invalid_request", "Invalid request fields.")
     if type(request["protocol_version"]) is not int or request["protocol_version"] != PROTOCOL_VERSION:
         return None, failure(request_id, "unsupported_version", "Unsupported protocol version.")
-    if request["command"] not in ("health_check", "diagnostic_job"):
+    if request["command"] not in ("health_check", "diagnostic_job", "process_video"):
         return None, failure(request_id, "unsupported_command", "Unsupported command.")
-    if request["command"] == "diagnostic_job" and request["job_id"] != request_id:
+    if request["command"] in ("diagnostic_job", "process_video") and request["job_id"] != request_id:
         return None, failure(request_id, "invalid_request", "Job identity must match request identity.")
     return request, None
 
@@ -56,8 +58,8 @@ def respond(raw):
                      "workerProtocolVersion": PROTOCOL_VERSION}, "error": None}
 
 
-def emit(message):
-    print(json.dumps(message, sort_keys=True, ensure_ascii=True), flush=True)
+def emit(message, stream=None):
+    print(json.dumps(message, sort_keys=True, ensure_ascii=True), file=stream, flush=True)
 
 
 def diagnostic(request, send=emit, pause=time.sleep):
@@ -108,6 +110,14 @@ def main():
         return 0
     if request["command"] == "diagnostic_job":
         return diagnostic(request)
+    if request["command"] == "process_video":
+        import importlib.util
+        from pathlib import Path
+        spec = importlib.util.spec_from_file_location("desktop_processing", Path(__file__).with_name("processing.py"))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        protocol_stdout = sys.stdout
+        return module.dispatch(request, lambda message: emit(message, protocol_stdout))
     emit(respond(raw))
     return 0
 

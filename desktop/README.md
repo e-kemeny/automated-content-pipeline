@@ -149,7 +149,7 @@ Run `npm test` for lightweight bridge tests (verified with Node 24.12.0), and
 ## Python worker health (05)
 
 The compact header now distinguishes native readiness from Python worker health.
-The worker is standard-library-only and never imports the production video pipeline.
+The health command is standard-library-only and never imports the production video pipeline.
 See [python-worker-v1.md](docs/python-worker-v1.md) for interpreter selection,
 protocol examples, timeout/cleanup behavior, tests, and deployment limitations.
 Use the same native launch command above; Python must already be installed.
@@ -160,3 +160,13 @@ Studio can run and cancel a controlled Python diagnostic with live check counts.
 This does not process the selected video. See
 [diagnostic-jobs-v1.md](docs/diagnostic-jobs-v1.md) for lifecycle, protocol, limits,
 and verification commands. The native launch command is unchanged.
+
+## Real video processing (07)
+
+Native Studio now selects a local video and output folder, runs Shorts, Long-form,
+or Both, and supports cancellation with real stage updates. Browser preview does
+not process media. Python, FFmpeg and FFprobe must already be available.
+
+Run `npm run tauri -- dev` from `desktop/`. See
+[video-processing-v1.md](docs/video-processing-v1.md) for workspace safety,
+protocol, verification results and current deployment limitations.

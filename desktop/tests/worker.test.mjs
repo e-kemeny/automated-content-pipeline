@@ -32,7 +32,7 @@ test('native readiness is distinct from worker availability and processing', () 
  assert.equal(desktopPresentation(native, { kind: 'available', info }).label, 'Python worker available')
  assert.equal(desktopPresentation(native, { kind: 'unavailable', error: 'missing' }).label, 'Python worker unavailable')
  for (const worker of [{ kind: 'checking' }, { kind: 'available', info }, { kind: 'unavailable', error: 'missing' }]) {
-  assert.match(desktopPresentation(native, worker).detail, /Video processing is not connected/)
+  assert.match(desktopPresentation(native, worker).detail, /processing dependencies are validated/)
  }
 })
 test('browser and native failures override worker presentation', () => {

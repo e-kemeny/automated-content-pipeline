@@ -2,5 +2,5 @@
   "identifier": "runtime",
   "description": "Runtime health and controlled diagnostic jobs for the local main window only.",
   "windows": ["main"],
-  "permissions": ["allow-get-runtime-info", "allow-check-python-worker", "allow-start-diagnostic-job", "allow-get-job-state", "allow-cancel-diagnostic-job", "core:event:allow-listen", "core:event:allow-unlisten"]
+  "permissions": ["allow-get-runtime-info", "allow-start-processing-job", "allow-select-source-video", "allow-select-output-workspace", "allow-get-media-selection", "allow-check-python-worker", "allow-start-diagnostic-job", "allow-get-job-state", "allow-cancel-diagnostic-job", "core:event:allow-listen", "core:event:allow-unlisten"]
 }

@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 import { Icon } from './Icons'
 import { TimelineArtwork } from './SignalAperture'
 export type SelectedFile = { name: string; size: number; type: string }
 
-export function Studio({ selected, onSelect }: { selected: SelectedFile | null; onSelect: (file: SelectedFile | null) => void }) {
+export function Studio({ selected, onSelect, sourceControls }: { sourceControls?: ReactNode; selected: SelectedFile | null; onSelect: (file: SelectedFile | null) => void }) {
  const input = useRef<HTMLInputElement>(null)
  const [error, setError] = useState('')
  function choose(event: ChangeEvent<HTMLInputElement>) {
@@ -18,6 +18,7 @@ export function Studio({ selected, onSelect }: { selected: SelectedFile | null; 
   <section className="stage-panel" aria-label="Decorative timeline illustration"><TimelineArtwork /></section>
   <section className="source-panel" aria-labelledby="source-title">
    <div className="panel-heading"><span id="source-title">Source</span><Icon name="file"/></div>
+   {sourceControls ?? <>
    <div className="source-content">
     <div className="import-symbol"><Icon name="plus" width="30" height="30"/></div>
     <h2>{selected ? 'Selected file' : 'No video selected'}</h2>
@@ -29,6 +30,7 @@ export function Studio({ selected, onSelect }: { selected: SelectedFile | null; 
     {selected && <div className="file-selection" role="status"><span className="file-name">{selected.name}</span><span className="technical">{(selected.size/1024/1024).toFixed(2)} MiB · {selected.type}</span><button className="text-button" onClick={()=>onSelect(null)}>Clear selection</button></div>}
    </div>
    <div className="source-note" id="file-scope">File metadata only<span className="sr-only">. Nothing is uploaded, saved or processed.</span></div>
+   </>}
   </section>
 
  </div>

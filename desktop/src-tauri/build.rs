@@ -5,6 +5,10 @@ fn main() {
             "check_python_worker",
             "start_diagnostic_job",
             "get_job_state",
+            "start_processing_job",
+            "select_source_video",
+            "select_output_workspace",
+            "get_media_selection",
             "cancel_diagnostic_job",
         ]),
     ))

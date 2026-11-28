@@ -1,0 +1,13 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { mediaCommand, startProcessing, parseSource } from '../src/processing.ts'
+import { parseJobSnapshot } from '../src/runtime.ts'
+const source={path:'C:\\space 空\\video.mp4',name:'video.mp4',size_bytes:5,modified_ms:1,duration_seconds:80,width:320,height:180}
+const state={jobId:'job-1',revision:1,state:'Running',stage:'Collecting observations and generating shared analysis',startedAt:1,finishedAt:null,progress:{completed:0,total:0},error:null,processing:{workspace:'C:\\jobs\\job-1',mode:'both',artifacts:[]}}
+test('native source validation preserves actual Unicode metadata',()=>{assert.deepEqual(parseSource(source),source);for(const s of [{...source,duration_seconds:NaN},{...source,width:0},{...source,path:null}])assert.throws(()=>parseSource(s))})
+test('browser commands do not invoke native processing',async()=>{const fail=()=>{throw Error('must not invoke')};assert.equal(await mediaCommand('select_source_video',false,fail),null);assert.equal(await startProcessing('both',false,fail),null)})
+test('narrow command forwarding sends mode only',async()=>{let call;assert.deepEqual(await startProcessing('shorts',true,async(...args)=>{call=args;return state}),state);assert.deepEqual(call,['start_processing_job',{mode:'shorts'}])})
+test('picker cancellation and rehydration',async()=>{assert.equal(await mediaCommand('select_source_video',true,async()=>null),null);assert.deepEqual(await mediaCommand('get_media_selection',true,async()=>({source,output:'C:\\out'})),{source,output:'C:\\out'})})
+test('invocation failures propagate without success',async()=>{await assert.rejects(startProcessing('both',true,async()=>{throw Error('busy')}),/busy/);await assert.rejects(mediaCommand('select_output_workspace',true,async()=>({bad:true})))})
+test('processing reports indeterminate stages and hides incomplete artifacts',()=>{assert.deepEqual(parseJobSnapshot(state),state);assert.throws(()=>parseJobSnapshot({...state,progress:{completed:3,total:12}}));assert.throws(()=>parseJobSnapshot({...state,state:'Completed',finishedAt:2}))})
+test('completed result requires validated artifact metadata',()=>{const kinds=['shorts','shorts','shorts','shorts','shorts','longform','review','analysis'];const artifacts=kinds.map((kind,i)=>({path:`C:\\jobs\\job-1\\${i}`,kind,size_bytes:10,sha256:'a'.repeat(64),duration_seconds:i<6?15:null}));const complete={...state,state:'Completed',finishedAt:2,processing:{...state.processing,artifacts}};assert.equal(parseJobSnapshot(complete).processing.artifacts.length,8);assert.throws(()=>parseJobSnapshot({...complete,state:'Cancelled'}))})

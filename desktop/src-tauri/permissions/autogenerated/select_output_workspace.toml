@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-select-output-workspace"
+description = "Enables the select_output_workspace command without any pre-configured scope."
+commands.allow = ["select_output_workspace"]
+
+[[permission]]
+identifier = "deny-select-output-workspace"
+description = "Denies the select_output_workspace command without any pre-configured scope."
+commands.deny = ["select_output_workspace"]
